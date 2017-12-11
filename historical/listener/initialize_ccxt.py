@@ -1,12 +1,12 @@
-#Create database to write bitcoin price data into
-
 import time
 import ccxt
+
 
 #make class that holds all subject data
 class Exchange():
     def __init__(self, exchange, base_currency, quote_currency):
-        self.exchange = ccxt.bittrex()
+        exchange = getattr(ccxt, exchange)
+        self.exchange = exchange()
         self.markets  = self.exchange.load_markets()
         self.symbols = self.exchange.symbols
         self.base_currency = base_currency
@@ -25,3 +25,5 @@ class Exchange():
 
 ETH_BTC_Exchange = Exchange('bittrex','ETH','BTC')
 ETH_BTC_Exchange.pull_OHLCV_data('1m')
+
+

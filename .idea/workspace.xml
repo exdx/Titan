@@ -2,14 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="3c0fd3ce-e54f-44ba-a7e8-6cd14c669a02" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/historical/listener/create_price_database.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/historical/BCHARTS-BITSTAMPUSD.pkl" afterPath="$PROJECT_DIR$/historical/btc-usd/BCHARTS-BITSTAMPUSD.pkl" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/historical/BCHARTS-COINBASEUSD.pkl" afterPath="$PROJECT_DIR$/historical/btc-usd/BCHARTS-COINBASEUSD.pkl" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/historical/BCHARTS-ITBITUSD.pkl" afterPath="$PROJECT_DIR$/historical/btc-usd/BCHARTS-ITBITUSD.pkl" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/historical/BCHARTS-KRAKENUSD.pkl" afterPath="$PROJECT_DIR$/historical/btc-usd/BCHARTS-KRAKENUSD.pkl" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/historical/BTC_historical_exchange_data.py" afterPath="$PROJECT_DIR$/historical/btc-usd/BTC_historical_exchange_data.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/historical/listener/bittrex_ccxt_preview.py" afterPath="$PROJECT_DIR$/historical/listener/initialize_ccxt.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/historical/listener/__init__.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/historical/listener/create_price_database_SQL.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Titan.iml" afterPath="$PROJECT_DIR$/.idea/Titan.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/historical/listener/create_price_database.py" afterPath="$PROJECT_DIR$/historical/listener/create_price_database.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/historical/listener/initialize_ccxt.py" afterPath="$PROJECT_DIR$/historical/listener/initialize_ccxt.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -20,26 +18,36 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="initialize_ccxt.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="initialize_ccxt.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/historical/listener/initialize_ccxt.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="27" column="0" lean-forward="true" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+            <state relative-caret-position="425">
+              <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="26" selection-end-column="38" />
               <folding>
-                <element signature="e#51#62#0" expanded="true" />
+                <element signature="e#0#11#0" expanded="true" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="create_price_database.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="create_price_database.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/historical/listener/create_price_database.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="85">
-              <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+            <state relative-caret-position="39">
+              <caret line="11" column="19" lean-forward="false" selection-start-line="11" selection-start-column="19" selection-end-line="11" selection-end-column="19" />
               <folding>
-                <element signature="e#0#11#0" expanded="true" />
+                <element signature="e#0#9#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="create_price_database_SQL.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/historical/listener/create_price_database_SQL.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="68">
+              <caret line="4" column="51" lean-forward="false" selection-start-line="4" selection-start-column="51" selection-end-line="4" selection-end-column="51" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -63,8 +71,10 @@
         <option value="$PROJECT_DIR$/historical/BTC_historical_exchange_data.py" />
         <option value="$PROJECT_DIR$/historical/listener/create_db.py" />
         <option value="$PROJECT_DIR$/historical/listener/bittrex_ccxt_preview.py" />
-        <option value="$PROJECT_DIR$/historical/listener/create_price_database.py" />
         <option value="$PROJECT_DIR$/historical/listener/initialize_ccxt.py" />
+        <option value="$PROJECT_DIR$/historical/listener/__init__.py" />
+        <option value="$PROJECT_DIR$/historical/listener/create_price_database.py" />
+        <option value="$PROJECT_DIR$/historical/listener/create_price_database_SQL.py" />
       </list>
     </option>
   </component>
@@ -117,7 +127,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -136,7 +146,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.initialize_ccxt">
+  <component name="RunManager" selected="Python.create_price_database">
     <configuration name="BTC_historical" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -205,6 +215,23 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
+    <configuration name="create_price_database" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/historical/listener" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="Titan" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/historical/listener/create_price_database.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
     <configuration name="initialize_ccxt" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -222,18 +249,20 @@
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
-    <list size="5">
+    <list size="6">
       <item index="0" class="java.lang.String" itemvalue="Python.BTC_historical" />
       <item index="1" class="java.lang.String" itemvalue="Python.BTC_historical_exchange_data" />
       <item index="2" class="java.lang.String" itemvalue="Python.create_db" />
       <item index="3" class="java.lang.String" itemvalue="Python.bittrex_ccxt_preview" />
       <item index="4" class="java.lang.String" itemvalue="Python.initialize_ccxt" />
+      <item index="5" class="java.lang.String" itemvalue="Python.create_price_database" />
     </list>
     <recent_temporary>
-      <list size="3">
-        <item index="0" class="java.lang.String" itemvalue="Python.initialize_ccxt" />
-        <item index="1" class="java.lang.String" itemvalue="Python.bittrex_ccxt_preview" />
-        <item index="2" class="java.lang.String" itemvalue="Python.create_db" />
+      <list size="4">
+        <item index="0" class="java.lang.String" itemvalue="Python.create_price_database" />
+        <item index="1" class="java.lang.String" itemvalue="Python.initialize_ccxt" />
+        <item index="2" class="java.lang.String" itemvalue="Python.bittrex_ccxt_preview" />
+        <item index="3" class="java.lang.String" itemvalue="Python.create_db" />
       </list>
     </recent_temporary>
   </component>
@@ -350,22 +379,38 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/historical/listener/create_price_database.py">
+    <entry file="file://$PROJECT_DIR$/historical/listener/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="5" column="0" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/historical/listener/create_price_database_SQL.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="51" lean-forward="false" selection-start-line="4" selection-start-column="51" selection-end-line="4" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/historical/listener/initialize_ccxt.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" column="0" lean-forward="false" selection-start-line="25" selection-start-column="0" selection-end-line="26" selection-end-column="38" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/historical/listener/initialize_ccxt.py">
+    <entry file="file://$PROJECT_DIR$/historical/listener/create_price_database.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="27" column="0" lean-forward="true" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+        <state relative-caret-position="39">
+          <caret line="11" column="19" lean-forward="false" selection-start-line="11" selection-start-column="19" selection-end-line="11" selection-end-column="19" />
           <folding>
-            <element signature="e#51#62#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
