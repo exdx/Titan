@@ -17,3 +17,5 @@ sql_create_pairs_table = """ CREATE TABLE IF NOT EXISTS pairs (
                                     base_currency text,
                                     quote_currency text
                                     ); """
+
+insert_data_into_ohlcv_table_sql = """INSERT INTO OHLCV (timestamp, open, high, low, close, volume) VALUES(?,?,?,?,?,?);"""
