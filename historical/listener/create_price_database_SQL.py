@@ -3,6 +3,7 @@
 sql_create_ohlcv_table = """ CREATE TABLE IF NOT EXISTS OHLCV (
                                     unique_id integer PRIMARY KEY,
                                     pair_id integer,
+                                    FOREIGN KEY(pair_id) REFERENCES pairs(unique_id),
                                     timestamp integer,
                                     open float,
                                     high float,
@@ -15,5 +16,7 @@ sql_create_ohlcv_table = """ CREATE TABLE IF NOT EXISTS OHLCV (
 sql_create_pairs_table = """ CREATE TABLE IF NOT EXISTS pairs (
                                     unique_id integer PRIMARY KEY,
                                     base_currency text,
-                                    quote_currency text
+                                    quote_currency text,
+                                    exchange text
                                     ); """
+
