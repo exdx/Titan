@@ -1,5 +1,9 @@
 ##SQL Queries to initialize tables
 
+sql_drop_ohlcv = """DROP TABLE OHLCV;"""
+
+sql_drop_pairs = """DROP TABLE pairs;"""
+
 sql_create_ohlcv_table = """ CREATE TABLE IF NOT EXISTS OHLCV (
                                     unique_id integer PRIMARY KEY,
                                     exchange text,
@@ -20,12 +24,13 @@ sql_create_pairs_table = """ CREATE TABLE IF NOT EXISTS pairs (
                                     ); """
 
 
-# Parameters: timestamp, open, high, low, close, volume
-insert_data_into_ohlcv_table_sql = """INSERT INTO OHLCV (timestamp, open, high, low, close, volume) VALUES(%s,%s,%s,%s,%s,%s);"""
+# Parameters: unique_id, exchange, timestamp, open, high, low, close, volume, interval
+insert_data_into_ohlcv_table_sql = """INSERT INTO OHLCV (unique_id, exchange, timestamp, open, high, low, close, volume, interval) 
+                                            VALUES(?,?,?,?,?,?,?,?,?);"""
 
 
 # Parameters: exchange.id, interval
-get_latest_candle = """SELECT * FROM OHLCV
-                        WHERE exchange = %s and
-                        WHERE interval = %s and
-                        WHERE unique_id = (SELECT MAX(unique_id) FROM OHLCV);"""
+get_latest_candle = """SELECT * FROM OHLCV 
+                    WHERE exchange = ? AND 
+                     interval = ? AND 
+                     unique_id = (SELECT MAX(unique_id) FROM OHLCV);"""

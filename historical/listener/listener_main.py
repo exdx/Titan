@@ -1,3 +1,4 @@
+import ccxt
 from initialize_ccxt import Exchange
 from price_database_functions import *
 
