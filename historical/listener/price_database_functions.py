@@ -44,7 +44,7 @@ def insert_data_into_ohlcv_table(candle):
     print("Writing price data successfully")
 
 
-def is_latest_candle(candle_data, exchange, interval):
+def has_candle(candle_data, exchange, interval):
     c = create_price_db.conn.cursor()
     c.execute(get_latest_candle, exchange, interval)
     row = c.fetchone()

@@ -31,9 +31,10 @@ class Exchange(BaseError):
                         time.sleep(self.wait_period)
                     else:
                         data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
-                        while not is_latest_candle(data, self.exchange.id, self.interval):
+                        while has_candle(data, self.exchange.id, self.interval):  # be sure not to add a duplicate candle
                             time.sleep(1)
-                            data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
+                            data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]  # check for later candle
+                        insert_data_into_ohlcv_table(data)  # add latest candle
                         candle_count += 1
                         time.sleep(self.wait_period)
                 except ccxt.BaseError as e: #basic placeholder for error handling - fix later
