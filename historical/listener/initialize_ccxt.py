@@ -20,7 +20,9 @@ class Exchange(BaseError):
         self.interval = interval
 
         if self.exchange.hasFetchOHLCV:
-            candle_count = 0  # keep track of number of candles for life of object
+            latest_candle = get_latest_candle_id(self.exchange.id, self.interval)
+            candle_count = latest_candle if (latest_candle != None) else 0
+
             while True:
                 try:
                     if candle_count == 0:  # check to see if historical candles have been pulled
@@ -58,6 +60,7 @@ class Exchange(BaseError):
                                                      self.exchange.id,
                                                      self.interval,
                                                      entry)  # add latest candle
+
                         print('Received latest candle')
 
                         print('Writing candle ' + str(candle_count) + ' to database')

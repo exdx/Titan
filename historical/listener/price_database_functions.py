@@ -55,6 +55,13 @@ def clear_ohlcv_table():
     c.execute('delete from OHLCV;')
     create_price_db.conn.commit()
 
+def get_latest_candle_id(exchange, interval):
+    c = create_price_db.conn.cursor()
+    args = (exchange, interval,)
+    c.execute(get_latest_candle, args)
+    row = c.fetchone()
+    return row[0] if (row != None) else 0
+
 def has_candle(candle_data, exchange, interval):
     c = create_price_db.conn.cursor()
     args = (exchange, interval, )

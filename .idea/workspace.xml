@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3c0fd3ce-e54f-44ba-a7e8-6cd14c669a02" name="Default" comment="">
+    <list default="true" id="3c0fd3ce-e54f-44ba-a7e8-6cd14c669a02" name="Default" comment="added logic to coni">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/historical/listener/initialize_ccxt.py" afterPath="$PROJECT_DIR$/historical/listener/initialize_ccxt.py" />
-      <change beforePath="$PROJECT_DIR$/historical/listener/listener_main.py" afterPath="$PROJECT_DIR$/historical/listener/listener_main.py" />
-      <change beforePath="$PROJECT_DIR$/historical/listener/price_database_SQL.py" afterPath="$PROJECT_DIR$/historical/listener/price_database_SQL.py" />
       <change beforePath="$PROJECT_DIR$/historical/listener/price_database_functions.py" afterPath="$PROJECT_DIR$/historical/listener/price_database_functions.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,11 +15,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="initialize_ccxt.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="initialize_ccxt.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/historical/listener/initialize_ccxt.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="49" column="25" lean-forward="false" selection-start-line="49" selection-start-column="25" selection-end-line="49" selection-end-column="25" />
+            <state relative-caret-position="174">
+              <caret line="22" column="65" lean-forward="false" selection-start-line="22" selection-start-column="65" selection-end-line="22" selection-end-column="65" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -51,11 +49,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="price_database_functions.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="price_database_functions.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/historical/listener/price_database_functions.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
+            <state relative-caret-position="328">
+              <caret line="62" column="25" lean-forward="false" selection-start-line="62" selection-start-column="25" selection-end-line="62" selection-end-column="25" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -89,9 +87,9 @@
         <option value="$PROJECT_DIR$/historical/technical_analysis/ta_database_SQL.py" />
         <option value="$PROJECT_DIR$/historical/technical_analysis/ta_database_functions.py" />
         <option value="$PROJECT_DIR$/historical/listener/listener_main.py" />
-        <option value="$PROJECT_DIR$/historical/listener/price_database_functions.py" />
         <option value="$PROJECT_DIR$/historical/listener/price_database_SQL.py" />
         <option value="$PROJECT_DIR$/historical/listener/initialize_ccxt.py" />
+        <option value="$PROJECT_DIR$/historical/listener/price_database_functions.py" />
       </list>
     </option>
   </component>
@@ -345,7 +343,14 @@
       <option name="project" value="LOCAL" />
       <updated>1513308148072</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="refactored, and got listener to a working state">
+      <created>1513313775644</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1513313775644</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -358,7 +363,7 @@
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32936507" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.36375663" sideWeight="0.49791667" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30820104" sideWeight="0.49791667" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3227513" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -409,19 +414,20 @@
     <MESSAGE value="added technical analysis module" />
     <MESSAGE value="added function to grab latest candle to database, refactored method to add candles to database&#10;*needs testing/debugging*" />
     <MESSAGE value="fix mistake code" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix mistake code" />
+    <MESSAGE value="refactored, and got listener to a working state" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactored, and got listener to a working state" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/historical/listener/initialize_ccxt.py</url>
-          <line>56</line>
+          <line>58</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/historical/listener/initialize_ccxt.py</url>
-          <line>33</line>
+          <line>35</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
@@ -596,6 +602,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/historical/listener/price_database_SQL.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="270">
+          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/historical/listener/listener_main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
@@ -606,30 +620,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/historical/listener/price_database_SQL.py">
+    <entry file="file://$PROJECT_DIR$/historical/listener/initialize_ccxt.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-          <folding />
+        <state relative-caret-position="174">
+          <caret line="22" column="65" lean-forward="false" selection-start-line="22" selection-start-column="65" selection-end-line="22" selection-end-column="65" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/historical/listener/price_database_functions.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
+        <state relative-caret-position="328">
+          <caret line="62" column="25" lean-forward="false" selection-start-line="62" selection-start-column="25" selection-end-line="62" selection-end-column="25" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/historical/listener/initialize_ccxt.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="49" column="25" lean-forward="false" selection-start-line="49" selection-start-column="25" selection-end-line="49" selection-end-column="25" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
