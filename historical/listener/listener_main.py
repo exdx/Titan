@@ -9,7 +9,7 @@ create_price_db()
 ETH_BTC_Exchange = Exchange('bittrex','ETH','BTC')
 
 #Step three write data into database
-ETH_BTC_Exchange.pull_OHLCV_data(60,'1m')
+ETH_BTC_Exchange.pull_OHLCV_data(59,'1m')
 
 
 

@@ -1,7 +1,7 @@
 import time
 import ccxt
 from ccxt import BaseError
-from price_database_functions import insert_data_into_ohlcv_table
+from price_database_functions import *
 
 #make class that holds all subject data
 class Exchange(BaseError):
@@ -20,12 +20,22 @@ class Exchange(BaseError):
         self.interval = interval
 
         if self.exchange.hasFetchOHLCV:
+            candle_count = 0  # keep track of number of candles for life of object
             while True:
                 try:
-                    data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
-                    for entry in data:
-                        insert_data_into_ohlcv_table(entry)
-                    time.sleep(self.wait_period)
+                    if candle_count == 0:  # check to see if historical candles have been pulled
+                        data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
+                        for entry in data:
+                            insert_data_into_ohlcv_table(entry)
+                            candle_count += 1
+                        time.sleep(self.wait_period)
+                    else:
+                        data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
+                        while not is_latest_candle(data, self.exchange.id, self.interval):
+                            time.sleep(1)
+                            data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
+                        candle_count += 1
+                        time.sleep(self.wait_period)
                 except ccxt.BaseError as e: #basic placeholder for error handling - fix later
                     print(e)
 
