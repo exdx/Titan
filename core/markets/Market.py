@@ -1,10 +1,10 @@
 import time
 import ccxt
-from ccxt import BaseError
-from price_database_functions import *
+from core.database import ohlcv_functions
 
-#make class that holds all subject data
-class Exchange(BaseError):
+
+
+class Market(ccxt.BaseError):
     def __init__(self, exchange, base_currency, quote_currency):
         exchange = getattr(ccxt, exchange)
         self.exchange = exchange()
@@ -20,7 +20,7 @@ class Exchange(BaseError):
         self.interval = interval
 
         if self.exchange.hasFetchOHLCV:
-            latest_candle = get_latest_candle_id(self.exchange.id, self.interval)
+            latest_candle = ohlcv_functions.get_latest_candle_id(self.exchange.id, self.interval)
             candle_count = latest_candle if (latest_candle != None) else 0
 
             while True:
@@ -67,9 +67,3 @@ class Exchange(BaseError):
                         time.sleep(self.wait_period)
                 except ccxt.BaseError as e: #basic placeholder for error handling - fix later
                     print(e)
-
-
-
-
-
-
