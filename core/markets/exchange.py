@@ -43,6 +43,7 @@ class Market(BaseError):
                         if ohlcv_functions.has_candle(data[-1], self.exchange.id, self.interval):  # be sure not to add a duplicate candle
                             print('Candle already contained in DB, waiting one second to retry...')
                             time.sleep(self.exchange.rateLimit/1000)
+                            #needs to return to top to try again - add functionality
                         else:
                             candle_count += 1
                             ohlcv_functions.insert_data_into_ohlcv_table(candle_count,
