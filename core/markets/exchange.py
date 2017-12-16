@@ -1,10 +1,11 @@
 import time
 import ccxt
+from ccxt import BaseError
 from core.database import ohlcv_functions
 
 
 
-class Market(ccxt.BaseError):
+class Market(BaseError):
     def __init__(self, exchange, base_currency, quote_currency):
         exchange = getattr(ccxt, exchange)
         self.exchange = exchange()
@@ -27,22 +28,10 @@ class Market(ccxt.BaseError):
                 try:
                     if candle_count == 0:  # check to see if historical candles have been pulled
                         print('Pulling latest batch of candles')
-
-                        ##clear DB
-                        #clear_ohlcv_table()
-                        #print('Clearing old table')
-                        ##clear for debug, do not want to fill db with useless repeated data from debugging
-
                         data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
                         for entry in data:
-
-
-                            ##debugging this method
-                            #has_candle(entry, self.exchange.id, self.interval)
-
-
                             candle_count += 1
-                            insert_data_into_ohlcv_table(candle_count,
+                            ohlcv_functions.insert_data_into_ohlcv_table(candle_count,
                                                          self.exchange.id,
                                                          self.interval,
                                                          entry)
@@ -51,12 +40,12 @@ class Market(ccxt.BaseError):
                         time.sleep(self.wait_period)
                     else:
                         data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
-                        while has_candle(data, self.exchange.id, self.interval):  # be sure not to add a duplicate candle
+                        while ohlcv_functions.has_candle(data, self.exchange.id, self.interval):  # be sure not to add a duplicate candle
                             print('Candle already contained in DB, waiting one second to retry...')
                             time.sleep(1)
                             data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]  # check for later candle
                         candle_count += 1
-                        insert_data_into_ohlcv_table(candle_count,
+                        ohlcv_functions.insert_data_into_ohlcv_table(candle_count,
                                                      self.exchange.id,
                                                      self.interval,
                                                      entry)  # add latest candle

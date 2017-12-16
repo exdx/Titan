@@ -4,7 +4,6 @@ sql_drop_pairs = """DROP TABLE pairs;"""
 
 sql_create_ohlcv_table = """ CREATE TABLE IF NOT EXISTS OHLCV (
                                     unique_id integer PRIMARY KEY,
-                                    pair_id integer,
                                     exchange text,
                                     timestamp integer,
                                     open float,
@@ -13,7 +12,6 @@ sql_create_ohlcv_table = """ CREATE TABLE IF NOT EXISTS OHLCV (
                                     close float,
                                     volume float,
                                     interval text,
-                                    FOREIGN KEY(pair_id) REFERENCES pairs(unique_id)
                                 ); """
 
 

@@ -1,7 +1,7 @@
 import os
 import sqlite3
 from sqlite3 import Error
-from util_SQL import *
+from core.database import util_SQL
 
 db_name = 'core_db.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
@@ -44,10 +44,10 @@ def execute_query(sql_string, args):
 def reset_db():
     print('Resetting tables')
     try:
-        execute_sql(create_price_db.conn, sql_drop_ohlcv)
-        execute_sql(create_price_db.conn, sql_drop_pairs)
+        execute_sql(util_SQL.sql_drop_ohlcv)
+        execute_sql(util_SQL.create_price_db.conn, util_SQL.sql_drop_pairs)
     except:
         print('No tables exist')
 
-    execute_sql(create_price_db.conn, sql_create_ohlcv_table)
-    execute_sql(create_price_db.conn, sql_create_pairs_table)
+    execute_sql(util_SQL.sql_create_ohlcv_table)
+    execute_sql(util_SQL.sql_create_pairs_table)

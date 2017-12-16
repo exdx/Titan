@@ -1,6 +1,5 @@
 import ccxt
-import core.markets
-import core.database
+from core.markets import exchange
 from core.database import connection_manager
 
 
@@ -8,7 +7,7 @@ from core.database import connection_manager
 connection_manager.reset_db() #for debug
 
 #Step two initialize exchange class
-ETH_BTC_Exchange = Market('bittrex','ETH','BTC')
+ETH_BTC_Exchange = exchange.Market('bittrex', 'ETH', 'BTC')
 
 #Step three write data into database
 ETH_BTC_Exchange.pull_OHLCV_data(59, '1m')
