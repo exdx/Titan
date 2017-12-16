@@ -47,3 +47,9 @@ Temporary Items
 
 #pycharm stuff
 .idea/
+
+*.xml
+
+*.pyc
+
+
