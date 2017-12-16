@@ -3,6 +3,7 @@ import sqlite3
 from sqlite3 import Error
 from core.database import ohlcv_SQL
 from core.database import connection_manager
+import datetime
 
 database = connection_manager
 
@@ -31,3 +32,7 @@ def has_candle(candle_data, exchange, interval):
             return True
     else:
         return False
+
+def convert_timestamp_to_date(timestamp):
+        converted_timestamp = datetime.datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d %H:%M:%S')
+        return converted_timestamp
