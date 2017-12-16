@@ -3,7 +3,6 @@ from core.markets import exchange
 from core.database import connection_manager
 
 
-
 #Step one create price database
 connection_manager.reset_db() #for debug
 
