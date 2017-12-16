@@ -16,13 +16,18 @@ def clear_ohlcv_table():
 
 def get_latest_candle_id(exchange, interval):
     args = (exchange, interval,)
-    row = database.execute_query(ohlcv_SQL.get_latest_candle, args)
-    return row[0] if (row != None) else 0
+    id = database.execute_query(ohlcv_SQL.get_latest_candle_id, args)
+    id_flat = id[0]
+    if id_flat:
+        return id_flat
+    else:
+        return 0
 
 def has_candle(candle_data, exchange, interval):
-    args = (exchange, interval, )
+    args = (exchange, interval,)
     row = database.execute_query(ohlcv_SQL.get_latest_candle, args)
-    if row[0] == candle_data:
-        return True
+    if row:
+        if row[0] == candle_data:
+            return True
     else:
         return False
