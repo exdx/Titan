@@ -22,14 +22,18 @@ class Market(BaseError):
 
         if self.exchange.hasFetchOHLCV:
             latest_candle = ohlcv_functions.get_latest_candle_id(self.exchange.id, self.interval)
-            candle_count = latest_candle if (latest_candle != None) else 0
+            if all(latest_candle):
+                candle_count = latest_candle[0]
+            else:
+                candle_count = 0
+
+            self.data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
 
             while True:
                 try:
                     if candle_count == 0:  # check to see if historical candles have been pulled
                         print('Pulling latest batch of candles')
-                        data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
-                        for entry in data:
+                        for entry in self.data:
                             candle_count += 1
                             ohlcv_functions.insert_data_into_ohlcv_table(candle_count,
                                                          self.exchange.id,
@@ -39,20 +43,20 @@ class Market(BaseError):
                             print('Writing candle ' + str(candle_count) + ' to database')
                         time.sleep(self.wait_period)
                     else:
-                        data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
-                        while ohlcv_functions.has_candle(data, self.exchange.id, self.interval):  # be sure not to add a duplicate candle
+                        while ohlcv_functions.has_candle(self.data[-1], self.exchange.id, self.interval):  # be sure not to add a duplicate candle
                             print('Candle already contained in DB, waiting one second to retry...')
-                            time.sleep(1)
-                            data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]  # check for later candle
-                        candle_count += 1
-                        ohlcv_functions.insert_data_into_ohlcv_table(candle_count,
-                                                     self.exchange.id,
-                                                     self.interval,
-                                                     entry)  # add latest candle
+                            time.sleep(self.exchange.rateLimit/1000)
+                            #needs to return to top to try again - add functionality
+                        else:
+                            candle_count += 1
+                            ohlcv_functions.insert_data_into_ohlcv_table(candle_count,
+                                                         self.exchange.id,
+                                                         self.interval,
+                                                         self.data[-1])  # add latest candle
 
-                        print('Received latest candle')
+                            print('Received latest candle')
 
-                        print('Writing candle ' + str(candle_count) + ' to database')
-                        time.sleep(self.wait_period)
+                            print('Writing candle ' + str(candle_count) + ' to database')
+                            time.sleep(self.wait_period)
                 except ccxt.BaseError as e: #basic placeholder for error handling - fix later
                     print(e)
