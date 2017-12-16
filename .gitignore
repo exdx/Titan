@@ -47,3 +47,8 @@ Temporary Items
 
 #pycharm stuff
 .idea/
+
+*.xml
+
+*.pyc
+historical/listener/titan_price_history_db.db
