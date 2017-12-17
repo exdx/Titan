@@ -9,9 +9,6 @@ connection_manager.reset_db() #for debug
 #Step two initialize exchange class
 ETH_BTC_Exchange = exchange.Market('bittrex', 'ETH', 'BTC')
 
-#Step three write data into database
-ETH_BTC_Exchange.pull_OHLCV_data(59, '1m')
-
 
 
 

@@ -3,15 +3,16 @@ sql_drop_ohlcv = """DROP TABLE OHLCV;"""
 sql_drop_pairs = """DROP TABLE pairs;"""
 
 sql_create_ohlcv_table = """ CREATE TABLE IF NOT EXISTS OHLCV (
-                                    unique_id integer PRIMARY KEY,
+                                    datetime text,
                                     exchange text,
+                                    pair text,
                                     timestamp integer,
                                     open float,
                                     high float,
                                     low float,
                                     close float,
                                     volume float,
-                                    interval text,
+                                    interval text
                                 ); """
 
 
