@@ -6,7 +6,7 @@ database = connection_manager
 
 
 def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
-    args = (convert_timestamp_to_date(candle[0]), exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval,)
+    args = (candle[0], exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval,)
     database.execute_sql(ohlcv_sql.insert_data_into_ohlcv_table_sql, args)
     print('Adding candle with timestamp: ' + str(candle[0]))
 
@@ -32,13 +32,4 @@ def has_candle(candle_data, exchange, pair, interval):
 
 
 def convert_timestamp_to_date(timestamp):
-    print(timestamp)
-
-
-    # possible bug with this method on Windows
-    #converted_timestamp = datetime.datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d %H:%M:%S')
-
-
-    #print(converted_timestamp)
-    #return converted_timestamp
     return "1" #return 1 for debugging
