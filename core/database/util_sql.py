@@ -1,6 +1,6 @@
-sql_drop_ohlcv = """DROP TABLE OHLCV;"""
+sql_drop_ohlcv = """DROP TABLE IF EXISTS OHLCV;"""
 
-sql_drop_pairs = """DROP TABLE pairs;"""
+sql_drop_pairs = """DROP TABLE IF EXISTS pairs;"""
 
 sql_create_ohlcv_table = """ CREATE TABLE IF NOT EXISTS OHLCV (
                                     datetime text,

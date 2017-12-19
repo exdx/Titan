@@ -3,7 +3,7 @@ insert_data_into_ohlcv_table_sql = """INSERT INTO OHLCV (datetime, exchange, pai
                                             VALUES(?,?,?,?,?,?,?,?,?,?);"""
 
 
-get_candles = """SELECT * FROM OHLCV 
-                    WHERE exchange = ? AND
-                     pair = ? AND 
-                     interval = ?"""
+get_candles =  """SELECT * FROM OHLCV 
+               WHERE exchange = ? AND
+               pair = ? AND 
+               interval = ?"""
