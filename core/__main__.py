@@ -16,7 +16,7 @@ def main():
     # running this 'ticker' from the main loop to trigger listeners to pull candles each minute
     while True:
         market_listener.tick_all()
-        time.sleep(55)  # only 55 seconds to stay ahead of the clock (since we have logic to assure no duplicates added)
+        time.sleep(59)  #
 
 
 # wipe and recreate tables

@@ -34,7 +34,10 @@ class Listener:
         while self._running:
             if not self._jobs.empty():
                 job = self._jobs.get()
-                job()
+                try:
+                    job()
+                except:
+                    print('Tick error')
 
     # stop listener
     def stop(self):
@@ -49,7 +52,7 @@ class Listener:
                 time.sleep(self.exchange.rateLimit / 1000)
                 data = try_get_data(self.exchange, self.analysis_pair, self.interval)
             self.add_candle(data[-1])
-        if self.historical_loaded:  # only add new candles if historica data has been loaded
+        if self.historical_loaded:  # only add new candles if historical data has been loaded
             self._jobs.put(do_tick)
 
     # load all historical candles to database
