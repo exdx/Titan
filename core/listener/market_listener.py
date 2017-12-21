@@ -40,7 +40,6 @@ class Listener:
         """Stop listener queue"""
         self._running = False
 
-    #
     def tick(self):
         """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
         def do_tick():

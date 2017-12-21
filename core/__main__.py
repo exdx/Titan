@@ -7,9 +7,9 @@ import time
 def main():
     print("Running...")
     print("Market 1 instantiated...")
-    ETH_BTC_Exchange = exchange.Market('bittrex', 'ETH', 'BTC', '1m')
+    ETH_BTC_Exchange = exchange.Market('bittrex', 'ETH', 'BTC', '5m')
     print("Market 2 instantiated...")
-    LTC_BTC_Exchange = exchange.Market('bittrex', 'LTC', 'BTC', '1m')
+    LTC_BTC_Exchange = exchange.Market('bittrex', 'LTC', 'BTC', '5m')
     print("Loading Candles...")
     market_listener.load_historical()
 
