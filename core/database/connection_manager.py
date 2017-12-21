@@ -61,13 +61,15 @@ def drop_tables():
     print('Dropping tables...')
     execute_sql(util_sql.sql_drop_ohlcv, None)
     execute_sql(util_sql.sql_drop_pairs, None)
-
+    execute_sql(util_sql.sql_drop_ta_identifier, None)
+    execute_sql(util_sql.sql_drop_ta_det_x1, None)
 
 def create_tables():
     print('Creating tables...')
     execute_sql(util_sql.sql_create_ohlcv_table, None)
     execute_sql(util_sql.sql_create_pairs_table, None)
-
+    execute_sql(util_sql.sql_create_ta_identifier_table, None)
+    execute_sql(util_sql.sql_create_ta_det_x1_table, None)
 
 def reset_db():
     print('Resetting database...')
