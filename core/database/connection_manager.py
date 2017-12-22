@@ -2,12 +2,14 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, Integer, String, Float, MetaData, ForeignKey
 
+
 db_name = 'core_db.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
 
 engine = create_engine('sqlite:///{}'.format(db_fullpath), echo=False)
 
 metadata = MetaData()
+
 
 OHLCV = Table('OHLCV', metadata,
               Column('ID', Integer, primary_key=True),
@@ -27,6 +29,23 @@ TradingPairs = Table('TradingPairs', metadata,
                      Column('BaseCurrency', String),
                      Column('QuoteCurrency', String),
                      )
+
+TAIdentifier = Table ('TAIdentifier', metadata,
+                      Column('TA_ID', Integer),
+                      Column('Description', String),
+                      )
+
+TA_Det_x1 = Table ('TA_Det_x1', metadata,
+                   Column('TA_Det_ID', Integer, primary_key=True),
+                   Column('Pair', String),
+                   Column('Time', String),
+                   Column('Close', Float),
+                   Column('SMA_SLOW_INTERVAL', Integer),
+                   Column('SMA_SLOW', Float),
+                   Column('SMA_FAST_INTERVAL', Integer),
+                   Column('SMA_FAST', Float),
+                   Column('VOLUME_CHANGE', Float),
+                   )
 
 def drop_tables():
     print('Dropping tables...')

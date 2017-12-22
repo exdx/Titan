@@ -57,13 +57,8 @@ class Listener:
         def do_add():
             print('Getting historical candles for market...')
 
-            # to speed up debugging process, add a dummy historical candle and continue
-            #self.add_candle([1, 0.0, 0.0, 0.0, 0.0, 0.0])
-            #time.sleep(1)
-
             data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
             for entry in data:
-               #print(entry)
                self.add_candle(entry)
                print('Writing candle ' + str(entry[0]) + ' to database')
             self.historical_loaded = True
@@ -76,7 +71,7 @@ class Listener:
 
 
 def try_get_data(exchange, analysis_pair, interval):
-    """Error handling method to pull data from the API of the exchange passed in"""
+    """method to pull data from the API of the exchange passed in"""
     try:
         return exchange.fetch_ohlcv(analysis_pair, interval)
     except:
