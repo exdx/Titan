@@ -28,8 +28,6 @@ TradingPairs = Table('TradingPairs', metadata,
                      Column('QuoteCurrency', String),
                      )
 
-metadata.create_all(engine)
-
 def drop_tables():
     print('Dropping tables...')
     metadata.drop_all(engine)
