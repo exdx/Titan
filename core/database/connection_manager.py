@@ -1,75 +1,42 @@
 import os
-import sqlite3
-import threading
-from sqlite3 import Error
-from core.database import util_sql
+from sqlalchemy import create_engine
+from sqlalchemy import Table, Column, Integer, String, Float, MetaData, ForeignKey
 
 db_name = 'core_db.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
 
-insert_lock = threading.Lock() #thread object that locks the DB so only one thread can write to it at at a time
-conn = sqlite3.connect(db_fullpath, check_same_thread=False)
+engine = create_engine('sqlite:///{}'.format(db_fullpath), echo=False)
 
-def execute_sql(sql_string, args):
-    with insert_lock:
-        if args:
-            try:
-                #conn = sqlite3.connect(db_fullpath)
-                c = conn.cursor()
-                c.execute(sql_string, args)
-                conn.commit()
-                #conn.close()
-            except Error as e:
-                print(e)
-        else:
-            try:
-                #conn = sqlite3.connect(db_fullpath)
-                c = conn.cursor()
-                c.execute(sql_string)
-                conn.commit()
-                #conn.close()
-            except Error as e:
-                print(e)
+metadata = MetaData()
 
-def execute_query(sql_string, args):
-    with insert_lock:
-        if args:
-            try:
-                #conn = sqlite3.connect(db_fullpath)
-                c = conn.cursor()
-                c.execute(sql_string, args)
-                data = c.fetchall()
-                conn.commit()
-                #conn.close()
-                return data
-            except Error as e:
-                print(e)
-        else:
-            try:
-                #conn = sqlite3.connect(db_fullpath)
-                c = conn.cursor()
-                c.execute(sql_string)
-                data = c.fetchall()
-                conn.commit()
-                #conn.close()
-                return data
-            except Error as e:
-                print(e)
+OHLCV = Table('OHLCV', metadata,
+              Column('ID', Integer, primary_key=True),
+              Column('Exchange', String),
+              Column('Pair', String),
+              Column('Timestamp', Integer),
+              Column('Open', Float),
+              Column('High', Float),
+              Column('Low', Float),
+              Column('Close', Float),
+              Column('Volume', Float),
+              Column('Interval', String),
+              )
 
+TradingPairs = Table('TradingPairs', metadata,
+                     Column('PairID', String, primary_key=True),
+                     Column('BaseCurrency', String),
+                     Column('QuoteCurrency', String),
+                     )
+
+metadata.create_all(engine)
 
 def drop_tables():
     print('Dropping tables...')
-    execute_sql(util_sql.sql_drop_ohlcv, None)
-    execute_sql(util_sql.sql_drop_pairs, None)
-    execute_sql(util_sql.sql_drop_ta_identifier, None)
-    execute_sql(util_sql.sql_drop_ta_det_x1, None)
+    metadata.drop_all(engine)
 
 def create_tables():
     print('Creating tables...')
-    execute_sql(util_sql.sql_create_ohlcv_table, None)
-    execute_sql(util_sql.sql_create_pairs_table, None)
-    execute_sql(util_sql.sql_create_ta_identifier_table, None)
-    execute_sql(util_sql.sql_create_ta_det_x1_table, None)
+    metadata.create_all(engine)
 
 def reset_db():
     print('Resetting database...')
