@@ -1,35 +1,36 @@
-import datetime
-from core.database import ohlcv_sql
 from core.database import connection_manager
+from sqlalchemy.sql import select
 
-database = connection_manager
-
+engine = connection_manager.engine
+conn = engine.connect()
 
 def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
-    args = (exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval,)
-    database.execute_sql(ohlcv_sql.insert_data_into_ohlcv_table_sql, args)
+    args = [exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval]
+    ins = connection_manager.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=args[2], Open=args[3], High=args[4], Low=args[5], Close=args[6],Volume=args[7],Interval=args[8])
+    conn.execute(ins)
     print('Adding candle with timestamp: ' + str(candle[0]))
 
 
-def clear_ohlcv_table():
-    database.execute_sql('delete from OHLCV;')
-
-
-def get_latest_candle_time(exchange, pair, interval):
+def get_latest_candle(exchange, pair, interval):
+    s = select([connection_manager.OHLCV]).order_by(connection_manager.OHLCV.ID.desc()).limit(1)
     args = (exchange, pair, interval,)
-    row = database.execute_query(ohlcv_sql.get_candles, args)[0]
-    return row[0] if (row != None) else 0
+    result = conn.execute(s)
+    row = result.fetchone()
+    return row if (row != None) else 0
 
 
 def has_candle(candle_data, exchange, pair, interval):
     print('Checking for candle with timestamp: ' + str(candle_data[0]))
     args = (exchange, pair, interval,)
-    candles = database.execute_query(ohlcv_sql.get_candles, args)
+
+    s = select([connection_manager.OHLCV])
+    candles = conn.execute(s)
     for row in candles: # now that we are using multiple listeners, loop through all candles (will need to refactor for optimization to loop through only a number of the latest)
         if row[3] == candle_data[0] and row[1] == exchange and row[2] == pair:  # compare timestamp of database row to timestamp of candle data passed in
             return True
     return False
 
 
-def convert_timestamp_to_date(timestamp):
-    return "1" #return 1 for debugging
+def convert_timestamp_to_date():
+    pass
+
