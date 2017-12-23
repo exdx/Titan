@@ -4,9 +4,6 @@ from sqlalchemy.sql import select
 engine = connection_manager.engine
 conn = engine.connect()
 
-
-
-
 def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
     args = [exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval]
     ins = connection_manager.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=args[2], Open=args[3], High=args[4], Low=args[5], Close=args[6],Volume=args[7],Interval=args[8])

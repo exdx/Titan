@@ -2,9 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, Integer, String, Float, MetaData, ForeignKey
 
-
-
-db_name = 'core_db.db'
+db_name = 'core.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
 
 engine = create_engine('sqlite:///{}'.format(db_fullpath), connect_args={'check_same_thread': False}, echo=True)
