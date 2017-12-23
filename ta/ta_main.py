@@ -1,4 +1,4 @@
-from pyti.simple_moving_average import simple_moving_average as sma
+
 from ta.ta_functions import *
 
 #main space to execute ta strategies

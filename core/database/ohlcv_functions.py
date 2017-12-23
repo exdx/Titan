@@ -1,5 +1,6 @@
 from core.database import connection_manager
 from sqlalchemy.sql import select, and_
+import pandas as pd
 
 engine = connection_manager.engine
 conn = engine.connect()
@@ -17,14 +18,23 @@ def get_latest_candle(exchange, pair, interval):
     s = select([connection_manager.OHLCV]).where(and_(connection_manager.OHLCV.c.Exchange == exchange,connection_manager.OHLCV.c.Pair == pair,connection_manager.OHLCV.c.Interval == interval)).order_by(connection_manager.OHLCV.c.ID.desc()).limit(1)
     result = conn.execute(s)
     row = result.fetchone()
-    print(row)
     return row if (row != None) else 0
+    result.close()
+
+def get_latest_N_candles_as_df(exchange, pair, interval, N):
+    '''Returns N latest candles for TA calculation purposes'''
+    s = select([connection_manager.OHLCV]).where(and_(connection_manager.OHLCV.c.Exchange == exchange,connection_manager.OHLCV.c.Pair == pair,connection_manager.OHLCV.c.Interval == interval)).order_by(connection_manager.OHLCV.c.ID.desc()).limit(N)
+    result = conn.execute(s)
+    df = pd.DataFrame(result.fetchall())
+    df.columns = result.keys()
+
+    print(df)
+    return(df)
 
 
 def has_candle(candle_data, exchange, pair, interval):
     '''Checks to see if the candle is already in the historical dataset pulled'''
     print('Checking for candle with timestamp: ' + str(candle_data[0]))
-    args = (exchange, pair, interval,)
 
     s = select([connection_manager.OHLCV]).where(and_(connection_manager.OHLCV.c.Exchange == exchange,connection_manager.OHLCV.c.Pair == pair,connection_manager.OHLCV.c.Interval == interval))
     result = conn.execute(s)
