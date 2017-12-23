@@ -32,8 +32,9 @@ class Listener:
                 job = self._jobs.get()
                 try:
                     job()
-                except:
-                    print('Tick error')
+                except Exception as e:
+                    print(e)
+                    #print('Tick error')
 
 
     def stop(self):
