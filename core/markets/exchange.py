@@ -53,7 +53,7 @@ class Market:
             self.__historical_loaded = True
         if not self.historical_loaded:
             self.__jobs.put(do_load)
-            self.__jobs.put()
+            #self.__jobs.put()
 
     def pull_latest_candle(self):
         """Get the latest OHLCV candle for the market"""
