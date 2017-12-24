@@ -20,8 +20,10 @@ class Market:
         self.__jobs = Queue()  # create job queue
         self.__running = True
         self.__thread.start()
-        self.__historical_loaded = False
+        self.historical_loaded = False
         self.load_historical()
+        self.indicators = []
+        self.latest_candle = None
         markets.append(self)
 
     def run(self):
@@ -49,8 +51,9 @@ class Market:
                 ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry)
                 print('Writing candle ' + str(entry[0]) + ' to database')
             self.__historical_loaded = True
-        if not self.__historical_loaded:
+        if not self.historical_loaded:
             self.__jobs.put(do_load)
+            self.__jobs.put()
 
     def pull_latest_candle(self):
         """Get the latest OHLCV candle for the market"""
@@ -63,8 +66,20 @@ class Market:
                 data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, data[-1])
             self.latest_candle = data[-1]
-        if self.__historical_loaded:
+        if self.historical_loaded:
             self.__jobs.put(do_pull)
+            self.__jobs.put(self.do_ta_calculations)
+
+    def do_historical_ta_calculations(self):
+        for indicator in self.indicators:
+            indicator.calculate_historical()
+
+    def do_ta_calculations(self):
+        for indicator in self.indicators:
+            indicator.next_calculation()
+
+    def apply_indicator(self, indicator):
+        self.indicators.append(indicator)
 
     def __get_wait_period_from_interval(interval):
         """Convert given interval to integer wait period (will be more helpful when we support different intervals)"""

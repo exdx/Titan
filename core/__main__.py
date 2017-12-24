@@ -1,5 +1,6 @@
 from core.markets import exchange
 from core.database import connection_manager
+from ta import ta_functions
 import time
 
 
@@ -9,6 +10,7 @@ def main():
     ETH_BTC_Exchange = exchange.Market('bittrex', 'ETH', 'BTC', '5m')
     print("Market 2 instantiated...")
     LTC_BTC_Exchange = exchange.Market('bittrex', 'LTC', 'BTC', '5m')
+    LTC_BTC_Exchange.apply_indicator(ta_functions.SimpleMovingAverage(3, ETH_BTC_Exchange))
     print("Loading Candles...")
     # running this 'ticker' from the main loop to trigger listeners to pull candles each minute
     while True:
