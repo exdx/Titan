@@ -31,8 +31,6 @@ def get_latest_N_candles_as_df(exchange, pair, interval, N):
     result = conn.execute(s)
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
-
-    print(df)
     return(df)
 
 
