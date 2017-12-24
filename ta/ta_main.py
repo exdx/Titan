@@ -1,4 +1,3 @@
-
 from ta.ta_functions import *
 
 #main space to execute ta strategies
