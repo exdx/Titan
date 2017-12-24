@@ -92,5 +92,5 @@ def get_wait_period_from_interval(interval):
     """Convert given interval to integer wait period (will be more helpful when we support different intervals)"""
     if interval == "1m":
         return 55
-    elif interval == "5m":
+    if interval == "5m":
         return 300
