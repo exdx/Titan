@@ -56,11 +56,11 @@ class Market:
         """Get the latest OHLCV candle for the market"""
         def do_pull():
             """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
-            data = self.exchange.fetch_ohlcv(self.exchange, self.analysis_pair, self.interval)
+            data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
             while ohlcv_functions.has_candle(data[-1], self.exchange.id, self.analysis_pair, self.interval):
                 print('Candle already contained in DB, retrying...')
                 time.sleep(self.exchange.rateLimit / 1000)
-                data = self.exchange.fetch_ohlcv(self.exchange, self.analysis_pair, self.interval)
+                data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, data[-1])
             self.latest_candle = data[-1]
         if self.__historical_loaded:
@@ -75,9 +75,6 @@ class Market:
 
 
 def update_all_candles():
+    """Tell all instantiated markets to pull their latest candle"""
     for market in markets:
         market.pull_latest_candle()
-
-def load_all_historical():
-    for market in markets:
-        market.load_historical()
