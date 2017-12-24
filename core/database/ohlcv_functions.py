@@ -1,16 +1,20 @@
 from core.database import connection_manager
 from sqlalchemy.sql import select, and_
 import pandas as pd
+from sqlalchemy.sql import select
+from threading import Lock
 
 engine = connection_manager.engine
 conn = engine.connect()
+lock = Lock()
 
 def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
     '''Inserts exchange candle data into table'''
-    args = [exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval]
-    ins = connection_manager.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=args[2], Open=args[3], High=args[4], Low=args[5], Close=args[6],Volume=args[7],Interval=args[8])
-    conn.execute(ins)
-    print('Adding candle with timestamp: ' + str(candle[0]))
+    with lock:
+        args = [exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval]
+        ins = connection_manager.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=args[2], Open=args[3], High=args[4], Low=args[5], Close=args[6],Volume=args[7],Interval=args[8])
+        conn.execute(ins)
+        print('Adding candle with timestamp: ' + str(candle[0]))
 
 
 def get_latest_candle(exchange, pair, interval):
@@ -47,5 +51,4 @@ def has_candle(candle_data, exchange, pair, interval):
 
 def convert_timestamp_to_date():
     pass
-
 
