@@ -11,14 +11,6 @@ def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
     print('Adding candle with timestamp: ' + str(candle[0]))
 
 
-def get_latest_candle(exchange, pair, interval):
-    s = select([connection_manager.OHLCV]).order_by(connection_manager.OHLCV.ID.desc()).limit(1)
-    args = (exchange, pair, interval,)
-    result = conn.execute(s)
-    row = result.fetchone()
-    return row if (row != None) else 0
-
-
 def has_candle(candle_data, exchange, pair, interval):
     print('Checking for candle with timestamp: ' + str(candle_data[0]))
     args = (exchange, pair, interval,)
