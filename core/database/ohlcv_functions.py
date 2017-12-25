@@ -1,6 +1,7 @@
 from core.database import connection_manager
 from sqlalchemy.sql import select, and_
 import pandas as pd
+import datetime
 from sqlalchemy.sql import select
 from threading import Lock
 
@@ -12,7 +13,7 @@ def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
     '''Inserts exchange candle data into table'''
     with lock:
         args = [exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval]
-        ins = connection_manager.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=args[2], Open=args[3], High=args[4], Low=args[5], Close=args[6],Volume=args[7],Interval=args[8])
+        ins = connection_manager.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=convert_timestamp_to_date(args[2]), Open=args[3], High=args[4], Low=args[5], Close=args[6],Volume=args[7],Interval=args[8])
         conn.execute(ins)
         print('Adding candle with timestamp: ' + str(candle[0]))
 
@@ -47,6 +48,9 @@ def has_candle(candle_data, exchange, pair, interval):
     return False
 
 
-def convert_timestamp_to_date():
-    pass
+def convert_timestamp_to_date(timestamp):
+    print("Converting " + str(timestamp) + " to timestamp")
+    value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))
+    print("Converted to " + str(value))
+    return value.strftime('%Y-%m-%d %H:%M:%S')
 
