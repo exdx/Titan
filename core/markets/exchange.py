@@ -1,5 +1,6 @@
 import ccxt
 import time
+import random
 from core.database import ohlcv_functions
 from threading import Thread
 from queue import Queue
@@ -24,6 +25,8 @@ class Market:
         self.load_historical("5m")
         self.indicators = []
         self.latest_candle = None
+        self.PairID = random.randint(1,100)
+        ohlcv_functions.write_trade_pairs_to_db(self.PairID,self.base_currency,self.quote_currency) #auto-write initialized market to DB with unique identifier
         markets.append(self)
 
     def run(self):
@@ -84,7 +87,6 @@ class Market:
 
     def apply_indicator(self, indicator):
         self.indicators.append(indicator)
-
 
 
 def update_all_candles(duration_minutes):

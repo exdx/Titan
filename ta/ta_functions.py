@@ -15,6 +15,7 @@ class SimpleMovingAverage:
         self.periods = periods
         self.market = market
         self.speed = speed
+        self.write_strategy_description_to_db()
 
     def next_calculation(self):
         """get latest N candles from market, do calculation, write results to db"""
@@ -48,6 +49,12 @@ class SimpleMovingAverage:
                 conn.execute(ins)
                 print('Writing Fast SMA statistic to db...')
 
+    def write_strategy_description_to_db(self):
+        '''Add ID and description to TAIdentifier table'''
+        with lock:
+            ins = connection_manager.TAIdentifier.insert().values(TA_ID=1, Description='A basic SMA Crossover Strategy')
+            conn.execute(ins)
+
     def convert_periods_to_time(self):
         '''Convert 5m period counts to hours or days, to make it more readable'''
         pass
@@ -59,6 +66,7 @@ class ExponentialMovingAverage:
         self.periods = periods
         self.market = market
         self.speed = speed
+        self.write_ta_statistic_to_db()
 
     def next_calculation(self):
         """get latest N candles from market, do calculation, write results to db"""
@@ -91,6 +99,12 @@ class ExponentialMovingAverage:
                 ins = connection_manager.TAMovingAverage.insert().values(SMA_FAST_INTERVAL=self.periods,SMA_FAST=self.ema_result)
                 conn.execute(ins)
                 print('Writing Fast EMA statistic to db...')
+
+    def write_strategy_description_to_db(self):
+        '''Add ID and description to TAIdentifier table'''
+        with lock:
+            ins = connection_manager.TAIdentifier.insert().values(TA_ID=2, Description='A basic EMA Crossover Strategy')
+            conn.execute(ins)
 
     def convert_periods_to_time(self):
         '''Convert 5m period counts to hours or days, to make it more readable'''

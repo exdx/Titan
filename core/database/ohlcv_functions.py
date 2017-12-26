@@ -50,6 +50,11 @@ def has_candle(candle_data, exchange, pair, interval):
 
     result.close()
 
+def write_trade_pairs_to_db(PairID, Base, Quote):
+    with lock:
+        ins = connection_manager.TradingPairs.insert().values(PairID=PairID, BaseCurrency=Base, QuoteCurrency=Quote)
+        conn.execute(ins)
+
 
 def convert_timestamp_to_date(timestamp):
     print("Converting " + str(timestamp) + " to timestamp")
