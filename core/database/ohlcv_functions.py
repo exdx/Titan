@@ -57,8 +57,8 @@ def write_trade_pairs_to_db(PairID, Base, Quote):
 
 
 def convert_timestamp_to_date(timestamp):
-    print("Converting " + str(timestamp) + " to timestamp")
+   # print("Converting " + str(timestamp) + " to timestamp")
     value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))
-    print("Converted to " + str(value))
+    #print("Converted to " + str(value))
     return value.strftime('%Y-%m-%d %H:%M:%S')
 

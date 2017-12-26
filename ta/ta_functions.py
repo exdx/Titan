@@ -34,7 +34,8 @@ class SimpleMovingAverage:
         self.write_ta_statistic_to_db()
 
     def do_calculation(self):
-        self.sma_result = sma(self.dataset['Close'].tolist(), self.periods)
+        sma_list = sma(self.dataset['Close'].tolist(), self.periods)
+        self.sma_result = sma_list[-1]
         return self.sma_result
 
     def write_ta_statistic_to_db(self):

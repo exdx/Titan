@@ -21,7 +21,7 @@ class Market:
         self.__running = True
         self.__thread.start()
         self.historical_loaded = False
-        self.load_historical("1m")
+        #self.load_historical("1m")
         self.load_historical("5m")
         self.indicators = []
         self.latest_candle = None
