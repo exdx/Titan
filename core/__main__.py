@@ -8,8 +8,8 @@ def main():
     print("Running...")
     print("Market 1 instantiated...")
     ETH_BTC_Exchange = exchange.Market('bittrex', 'ETH', 'BTC')
-    print("Market 2 instantiated...")
-    LTC_BTC_Exchange = exchange.Market('bittrex', 'LTC', 'BTC')
+ #   print("Market 2 instantiated...")
+  #  LTC_BTC_Exchange = exchange.Market('bittrex', 'LTC', 'BTC')
 
     ETH_BTC_Exchange.apply_indicator(ta_functions.SimpleMovingAverage("5m", 1440, ETH_BTC_Exchange, 'slow'))
     ETH_BTC_Exchange.apply_indicator(ta_functions.SimpleMovingAverage("5m", 12, ETH_BTC_Exchange, 'fast'))
