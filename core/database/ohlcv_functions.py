@@ -33,6 +33,7 @@ def get_latest_N_candles_as_df(exchange, pair, interval, N):
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
     return(df)
+    result.close()
 
 
 def has_candle(candle_data, exchange, pair, interval):
@@ -46,6 +47,8 @@ def has_candle(candle_data, exchange, pair, interval):
         if row[3] == candle_data[0] and row[1] == exchange and row[2] == pair:  # compare timestamp of database row to timestamp of candle data passed in
             return True
     return False
+
+    result.close()
 
 
 def convert_timestamp_to_date(timestamp):

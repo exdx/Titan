@@ -34,17 +34,17 @@ TAIdentifier = Table ('TAIdentifier', metadata,
                       Column('Description', String),
                       )
 
-TA_Det_x1 = Table ('TA_Det_x1', metadata,
-                   Column('TA_Det_ID', Integer, primary_key=True),
-                   Column('Pair', String),
-                   Column('Time', String),
-                   Column('Close', Float),
-                   Column('SMA_SLOW_INTERVAL', Integer),
-                   Column('SMA_SLOW', Float),
-                   Column('SMA_FAST_INTERVAL', Integer),
-                   Column('SMA_FAST', Float),
-                   Column('VOLUME_CHANGE', Float),
-                   )
+TAMovingAverage = Table ('TAMovingAverage', metadata,
+                         Column('TA_Det_ID', Integer, primary_key=True),
+                         Column('Pair', String),
+                         Column('Time', String),
+                         Column('Close', Float),
+                         Column('SMA_SLOW_INTERVAL', Integer),
+                         Column('SMA_SLOW', Float),
+                         Column('SMA_FAST_INTERVAL', Integer),
+                         Column('SMA_FAST', Float),
+                         Column('VOLUME_CHANGE', Float),
+                         )
 
 def drop_tables():
     print('Dropping tables...')
