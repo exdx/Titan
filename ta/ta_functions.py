@@ -35,9 +35,8 @@ class SimpleMovingAverage:
 
     def do_calculation(self):
         self.sma_result = sma(self.dataset['Close'].tolist(), self.periods)[-1]
-        self.close = self.dataset['Close'].tolist()[-1]
-        self.timestamp = self.dataset['Timestamp'].tolist()[-1]
-        return self.sma_result
+        self.close = self.dataset['Close'].tolist()[0]
+        self.timestamp = self.dataset['Timestamp'].tolist()[0]
 
     def write_ta_statistic_to_db(self):
         '''Inserts average into table, depending on the column whether it is the slow moving average or the fast moving average'''
