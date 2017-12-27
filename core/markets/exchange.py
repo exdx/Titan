@@ -54,6 +54,7 @@ class Market:
                 ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
                 print('Writing candle ' + str(entry[0]) + ' to database')
             self.historical_loaded = True
+            print('Historical data has been loaded.')
         if not self.historical_loaded:
             self.__jobs.put(do_load)
 
@@ -92,6 +93,6 @@ class Market:
 def update_all_candles(duration_minutes):
     """Tell all instantiated markets to pull their latest candle"""
     for market in markets:
-        market.pull_latest_candle("1m")
-        if duration_minutes % 5 == 0:
-            market.pull_latest_candle("5m")
+ #       market.pull_latest_candle("1m")
+ #      if duration_minutes % 5 == 0:
+        market.pull_latest_candle("5m")
