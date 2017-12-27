@@ -28,10 +28,15 @@ def main():
         minutes_running += 1
 
 
-# wipe and recreate tables
-connection_manager.reset_db()
 
-# run main
-main()
+try:
+    # wipe and recreate tables
+    connection_manager.reset_db()
+
+    # run main
+    main()
+
+finally:
+    connection_manager.engine.dispose()
 
 
