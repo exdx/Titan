@@ -57,7 +57,7 @@ class Market:
             print('Historical data has been loaded.')
         if not self.historical_loaded:
             self.__jobs.put(do_load)
-            self.do_historical_ta_calculations()
+            #self.do_historical_ta_calculations()
 
     def pull_latest_candle(self, interval):
         """Get the latest OHLCV candle for the market"""

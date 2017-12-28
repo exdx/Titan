@@ -27,7 +27,7 @@ def main():
 
         live_tick_count += 1
 
-        time.sleep(360)
+        time.sleep(300) #idk
 
 
 try:
