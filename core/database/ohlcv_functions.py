@@ -42,11 +42,11 @@ def has_candle(candle_data, exchange, pair, interval):
     """Checks to see if the candle is already in the historical dataset pulled"""
     print('Checking for candle with timestamp: ' + str(candle_data[0]))
 
-    s = select([connection_manager.OHLCV]).where(and_(connection_manager.OHLCV.c.Exchange == exchange,connection_manager.OHLCV.c.Pair == pair,connection_manager.OHLCV.c.Interval == interval))
+    s = select([connection_manager.OHLCV]).where(and_(connection_manager.OHLCV.c.Exchange == exchange,connection_manager.OHLCV.c.Pair == pair,connection_manager.OHLCV.c.Interval == interval)).order_by(connection_manager.OHLCV.c.ID.desc()).limit(10)
     result = conn.execute(s)
 
-    for row in result: # now that we are using multiple listeners, loop through all candles (will need to refactor for optimization to loop through only a number of the latest)
-        if row[3] == candle_data[0] and row[1] == exchange and row[2] == pair:  # compare timestamp of database row to timestamp of candle data passed in
+    for row in result: # limited result to latest 10 entries
+        if row[3] == convert_timestamp_to_date(candle_data[0]) and row[1] == exchange and row[2] == pair:  # compare timestamp of database row to timestamp of candle data passed in
             return True
     return False
 
