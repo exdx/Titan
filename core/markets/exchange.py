@@ -57,19 +57,20 @@ class Market:
             print('Historical data has been loaded.')
         if not self.historical_loaded:
             self.__jobs.put(do_load)
+            #self.do_historical_ta_calculations()
 
     def pull_latest_candle(self, interval):
         """Get the latest OHLCV candle for the market"""
         def do_pull():
             """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
             print("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
-            data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
-            while ohlcv_functions.has_candle(data[-1], self.exchange.id, self.analysis_pair, interval):
+            latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
+            while ohlcv_functions.has_candle(latest_data, self.exchange.id, self.analysis_pair, interval):
                 print('Candle already contained in DB, retrying...')
-                time.sleep(self.exchange.rateLimit / 1000)
-                data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
-            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, data[-1])
-            self.latest_candle = data[-1]
+                time.sleep(self.exchange.rateLimit * 2 / 1000)
+                latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
+            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, latest_data)
+            self.latest_candle = latest_data
         if self.historical_loaded:
             self.__jobs.put(do_pull)
             self.do_ta_calculations()
