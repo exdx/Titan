@@ -29,7 +29,7 @@ TradingPairs = Table('TradingPairs', metadata,
                      Column('QuoteCurrency', String),
                      )
 
-TAIdentifier = Table ('TAIdentifier', metadata,
+TAIdentifier = Table('TAIdentifier', metadata,
                       Column('TA_ID', Integer),
                       Column('Description', String),
                       )

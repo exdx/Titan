@@ -24,8 +24,8 @@ def get_latest_candle(exchange, pair, interval):
     s = select([connection_manager.OHLCV]).where(and_(connection_manager.OHLCV.c.Exchange == exchange,connection_manager.OHLCV.c.Pair == pair,connection_manager.OHLCV.c.Interval == interval)).order_by(connection_manager.OHLCV.c.ID.desc()).limit(1)
     result = conn.execute(s)
     row = result.fetchone()
-    return row if (row != None) else 0
     result.close()
+    return row
 
 
 def get_latest_N_candles_as_df(exchange, pair, interval, N):
@@ -34,8 +34,8 @@ def get_latest_N_candles_as_df(exchange, pair, interval, N):
     result = conn.execute(s)
     df = pd.DataFrame(result.fetchall())
     df.columns = result.keys()
-    return(df)
     result.close()
+    return df
 
 
 def has_candle(candle_data, exchange, pair, interval):
@@ -45,12 +45,13 @@ def has_candle(candle_data, exchange, pair, interval):
     s = select([connection_manager.OHLCV]).where(and_(connection_manager.OHLCV.c.Exchange == exchange,connection_manager.OHLCV.c.Pair == pair,connection_manager.OHLCV.c.Interval == interval))
     result = conn.execute(s)
 
-    for row in result: # now that we are using multiple listeners, loop through all candles (will need to refactor for optimization to loop through only a number of the latest)
-        if row[3] == candle_data[0] and row[1] == exchange and row[2] == pair:  # compare timestamp of database row to timestamp of candle data passed in
+    for row in result:
+        if row[3] == candle_data[0]:
+            result.close()
             return True
+    result.close()
     return False
 
-    result.close()
 
 def write_trade_pairs_to_db(PairID, Base, Quote):
     with lock:
@@ -59,8 +60,6 @@ def write_trade_pairs_to_db(PairID, Base, Quote):
 
 
 def convert_timestamp_to_date(timestamp):
-   # print("Converting " + str(timestamp) + " to timestamp")
-    value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))
-    #print("Converted to " + str(value))
+    value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3])) #  *this might only work on bittrex candle timestamps
     return value.strftime('%Y-%m-%d %H:%M:%S')
 

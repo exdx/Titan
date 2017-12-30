@@ -16,6 +16,12 @@ class SimpleMovingAverage:
         self.slow_periods = slow_periods
         self.fast_periods = fast_periods
         self.write_strategy_description_to_db()
+        self.sma_slow_result = None
+        self.sma_fast_result = None
+        self.slow_dataset = None
+        self.fast_dataset = None
+        self.close = None
+        self.timestamp = None
 
     def next_calculation(self):
         """get latest N candles from market, do calculation, write results to db"""

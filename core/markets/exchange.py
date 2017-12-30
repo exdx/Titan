@@ -50,10 +50,13 @@ class Market:
             """Load all historical candles to database"""
             print('Getting historical candles for market...')
             data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
+            ct = 0
             for entry in data:
                 ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
                 print('Writing candle ' + str(entry[0]) + ' to database')
+                ct += 1
             self.historical_loaded = True
+            print("Loaded " + str(ct) + " historical candles")
             print('Historical data has been loaded.')
         if not self.historical_loaded:
             self.__jobs.put(do_load)
@@ -64,7 +67,7 @@ class Market:
             """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
             print("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
             data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
-            while ohlcv_functions.has_candle(data[-1], self.exchange.id, self.analysis_pair, interval):
+            while data[-1] == self.latest_candle:
                 print('Candle already contained in DB, retrying...')
                 time.sleep(self.exchange.rateLimit / 1000)
                 data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
@@ -90,7 +93,7 @@ class Market:
         self.indicators.append(indicator)
 
 
-def update_all_candles(duration_minutes):
+def update_all_candles(tick_count):
     """Tell all instantiated markets to pull their latest candle"""
     for market in markets:
  #       market.pull_latest_candle("1m")
