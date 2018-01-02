@@ -32,7 +32,7 @@ class SimpleMovingAverage:
 
     def calculate_historical(self):
         """do calculations on historical market data if there are enough candles to do the calculation - otherwise return NA"""
-        self.slow_dataset = ohlcv_functions.get_latest_N_candles_as_df(self.market.exchange.id, self.market.analysis_pair,self.market.interval, self.slow_periods)
+        self.slow_dataset = ohlcv_functions.get_latest_N_candles_as_df(self.market.exchange.id, self.market.analysis_pair,self.interval, self.slow_periods)
         if len(self.slow_dataset['Close'].tolist()) < self.slow_periods:
             self.sma_slow_result = 'NA'
             self.sma_fast_result = 'NA'
@@ -48,7 +48,7 @@ class SimpleMovingAverage:
         self.timestamp = self.slow_dataset['Timestamp'].tolist()[0]
 
     def write_ta_statistic_to_db(self):
-        """Inserts average into table, depending on the column whether it is the slow moving average or the fast moving average"""
+        """Inserts average into table"""
         with lock:
                 ins = connection_manager.TAMovingAverage.insert().values(Pair=self.market.analysis_pair,Time=self.timestamp,Close=self.close,MA_SLOW_INTERVAL=self.slow_periods,MA_SLOW=self.sma_slow_result,MA_FAST_INTERVAL=self.fast_periods,MA_FAST=self.sma_fast_result)
                 conn.execute(ins)
