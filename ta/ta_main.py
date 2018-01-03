@@ -1,4 +1,4 @@
-from ta.ta_functions import *
+from ta.simple_moving_average import *
 
 #main space to execute ta strategies
 

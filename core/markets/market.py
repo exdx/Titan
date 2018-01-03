@@ -7,7 +7,6 @@ from queue import Queue
 
 markets = []
 
-
 class Market:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
     def __init__(self, exchange, base_currency, quote_currency):
@@ -23,6 +22,7 @@ class Market:
         self.historical_loaded = False
         self.load_historical("5m")
         self.indicators = []
+        self.strategies = []
         self.latest_candle = None
         self.PairID = random.randint(1,100)
         ohlcv_functions.write_trade_pairs_to_db(self.PairID,self.base_currency,self.quote_currency) #auto-write initialized market to DB with unique identifier
@@ -71,7 +71,7 @@ class Market:
             self.latest_candle = latest_data
         if self.historical_loaded:
             self.__jobs.put(do_pull)
-            self.do_ta_calculations()
+            self.__do_ta_calculations()
 
     def do_historical_ta_calculations(self):
         def do_historical_calculations():
@@ -79,15 +79,23 @@ class Market:
                 indicator.calculate_historical()
         self.__jobs.put(do_historical_calculations)
 
-    def do_ta_calculations(self):
+    def __do_ta_calculations(self):
         def do_calculations():
             for indicator in self.indicators:
                 indicator.next_calculation()
         self.__jobs.put(do_calculations)
 
+    def __tick_strategies(self):
+        def tick_strategies():
+            for strategy in self.strategies:
+                strategy.on_data()
+        self.__jobs.put(tick_strategies)
+
     def apply_indicator(self, indicator):
         self.indicators.append(indicator)
 
+    def apply_strategy(self, strategy):
+        self.strategies.append(strategy)
 
 def update_all_candles(tick_count):
     """Tell all instantiated markets to pull their latest candle"""

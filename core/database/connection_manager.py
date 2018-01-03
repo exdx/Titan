@@ -39,11 +39,16 @@ TAMovingAverage = Table ('TAMovingAverage', metadata,
                          Column('Pair', String),
                          Column('Time', String),
                          Column('Close', Float),
-                         Column('MA_SLOW_INTERVAL', Integer),
-                         Column('MA_SLOW', Float),
-                         Column('MA_FAST_INTERVAL', Integer),
-                         Column('MA_FAST', Float),
-                         Column('VOLUME_CHANGE', Float),
+                         Column('INTERVAL', Integer),
+                         Column('VALUE', Float),
+                         )
+
+TAVolumeChange = Table ('TAVolumeChange', metadata,
+                         Column('TA_Det_ID', Integer, primary_key=True),
+                         Column('Pair', String),
+                         Column('Time', String),
+                         Column('INTERVAL', Integer),
+                         Column('VALUE', Float),
                          )
 
 def drop_tables():
