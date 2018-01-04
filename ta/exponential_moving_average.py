@@ -12,17 +12,7 @@
 #         self.dataset = ohlcv_functions.get_latest_N_candles_as_df(self.market.exchange.id, self.market.analysis_pair, self.interval, self.periods)
 #         self.do_calculation()
 #         self.write_ta_statistic_to_db()
-#
-#     def calculate_historical(self):
-#         """do calculations on historical market data if there are enough candles to do the calculation - otherwise return NA"""
-#         self.dataset = ohlcv_functions.get_latest_N_candles_as_df(self.market.exchange.id, self.market.analysis_pair,self.market.interval, self.periods)
-#         if len(self.dataset['Close'].tolist()) < self.periods:
-#             self.ema_result = 'NA'
-#         else:
-#             self.do_calculation()
-#
-#         self.write_ta_statistic_to_db()
-#
+
 #     def do_calculation(self):
 #         ema_list = ema(self.dataset['Close'].tolist(), self.periods)
 #         self.ema_result = ema_list[-1]

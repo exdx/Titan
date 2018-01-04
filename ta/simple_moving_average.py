@@ -1,44 +1,28 @@
 from core.database import ohlcv_functions
 from pyti.simple_moving_average import simple_moving_average as sma
 from pyti.exponential_moving_average import exponential_moving_average as ema
-from core.database import connection_manager
+from core.database import database
 from threading import Lock
+from ta.indicator import Indicator
 
-engine = connection_manager.engine
+engine = database.engine
 conn = engine.connect()
-lock = Lock()
 
 
-class SimpleMovingAverage:
+class SimpleMovingAverage(Indicator):
     def __init__(self, market, interval, periods):
-        market.apply_indicator(self)
-        self.interval = interval
-        self.market = market
-        self.periods = periods
+        super(SimpleMovingAverage, self).__init__(market, interval, periods)
         self.write_strategy_description_to_db()
-        self.dataset = None
         self.close = None
         self.timestamp = None
         self.value = None
 
     def next_calculation(self):
         """get latest N candles from market, do calculation, write results to db"""
-        self.dataset = ohlcv_functions.get_latest_N_candles_as_df(self.market.exchange.id, self.market.analysis_pair, self.periods)
-        self.do_calculation()
-        self.write_ta_statistic_to_db()
-
-    def calculate_historical(self):
-        """do calculations on historical market data if there are enough candles to do the calculation - otherwise return NA"""
-
-        #will need more logic to segment and remove remainder candles for doing actual historical calculations
-
-        self.dataset = ohlcv_functions.get_latest_N_candles_as_df(self.market.exchange.id, self.market.analysis_pair, self.interval, self.periods)
-        if len(self.dataset['Close'].tolist()) < self.periods:
-            self.value = 'NA'
-        else:
+        self.update_dataset(self.market.latest_candle)
+        if len(self.dataset) == self.periods:
             self.do_calculation()
-
-        self.write_ta_statistic_to_db()
+            self.write_ta_statistic_to_db()
 
     def do_calculation(self):
         self.value = sma(self.dataset['Close'].tolist(), self.periods)[-1]
@@ -47,15 +31,15 @@ class SimpleMovingAverage:
 
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""
-        with lock:
-                ins = connection_manager.TAMovingAverage.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, INTERVAL=self.periods, VALUE=self.value)
+        with database.lock:
+                ins = database.TAMovingAverage.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, INTERVAL=self.periods, VALUE=self.value)
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 
     def write_strategy_description_to_db(self):
         '''Add ID and description to TAIdentifier table'''
-        with lock:
-            ins = connection_manager.TAIdentifier.insert().values(TA_ID=1, Description='A basic SMA Crossover Strategy')
+        with database.lock:
+            ins = database.TAIdentifier.insert().values(TA_ID=1, Description='A basic SMA Crossover Strategy')
             conn.execute(ins)
 
 

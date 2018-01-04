@@ -1,6 +1,6 @@
 from core.markets import market
-from core.database import connection_manager
-from strategies import ema_crossover_strategy
+from core.database import database
+from strategies import sma_crossover_strategy
 from ta import simple_moving_average
 import time
 
@@ -9,10 +9,7 @@ def main():
     print("Running...")
     print("Market 1 instantiated...")
     ETH_BTC_Exchange = market.Market('bittrex', 'ETH', 'BTC')
-#    print("Market 2 instantiated...")
-#    LTC_BTC_Exchange = exchange.Market('bittrex', 'LTC', 'BTC')
-#    print("Loading Candles...")
-    ETH_BTC_Exchange.apply_strategy(ema_crossover_strategy.CrossoverStrategy())
+    ETH_BTC_Exchange.apply_strategy(sma_crossover_strategy.SmaCrossoverStrategy(ETH_BTC_Exchange))
 
     live_tick_count = 0
     while True:
@@ -31,7 +28,7 @@ def main():
 
 try:
     # wipe and recreate tables
-    connection_manager.reset_db()
+    database.reset_db()
 
     # run main
     main()
@@ -40,6 +37,6 @@ except Exception as e:
     print(e)
 
 finally:
-    connection_manager.engine.dispose()
+    database.engine.dispose()
 
 

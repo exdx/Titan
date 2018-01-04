@@ -15,21 +15,23 @@ class Market:
         self.base_currency = base_currency
         self.quote_currency = quote_currency
         self.analysis_pair = '{}/{}'.format(self.base_currency, self.quote_currency)
+        self.interval = "5m"
         self.__thread = Thread(target=self.run)  # create thread for listener
         self.__jobs = Queue()  # create job queue
         self.__running = True
         self.__thread.start()
         self.historical_loaded = False
-        self.load_historical("5m")
         self.indicators = []
         self.strategies = []
         self.latest_candle = None
         self.PairID = random.randint(1,100)
-        ohlcv_functions.write_trade_pairs_to_db(self.PairID,self.base_currency,self.quote_currency) #auto-write initialized market to DB with unique identifier
+        ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency) #auto-write initialized market to DB with unique identifier
         markets.append(self)
+        self.__jobs.put(self.__load_historical)
 
     def run(self):
         """Start listener queue waiting for ticks"""
+        self.__running = True
         while self.__running:
             if not self.__jobs.empty():
                 job = self.__jobs.get()
@@ -37,59 +39,50 @@ class Market:
                     print("Executing job: " + job.__name__ + " on " + self.exchange.id + " " + self.analysis_pair)
                     job()
                 except Exception as e:
-                    print(e)
+                    print(job.__name__ + "threw error:\n" + str(e))
 
     def stop(self):
         """Stop listener queue"""
         self.__running = False
 
-    def load_historical(self, interval):
-        """Queue action to load historical candles"""
-        def do_load():
-            """Load all historical candles to database"""
-            print('Getting historical candles for market...')
-            data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
-            for entry in data:
-                ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
-                print('Writing candle ' + str(entry[0]) + ' to database')
-            self.historical_loaded = True
-            print('Historical data has been loaded.')
-        if not self.historical_loaded:
-            self.__jobs.put(do_load)
-
-    def pull_latest_candle(self, interval):
-        """Get the latest OHLCV candle for the market"""
-        def do_pull():
-            """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
-            print("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
-            latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
-            while latest_data == self.latest_candle:
-                print('Candle already contained in DB, retrying...')
-                time.sleep(self.exchange.rateLimit * 2 / 1000)
-                latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
-            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, latest_data)
-            self.latest_candle = latest_data
+    def tick(self):
+        """Initiate pull of latest candle, ta calculations, and notify strategies"""
         if self.historical_loaded:
-            self.__jobs.put(do_pull)
-            self.__do_ta_calculations()
+            self.__jobs.put(self.__pull_latest_candle)
+            self.__jobs.put(self.__do_ta_calculations)
+            self.__jobs.put(self.__tick_strategies)
 
-    def do_historical_ta_calculations(self):
-        def do_historical_calculations():
-            for indicator in self.indicators:
-                indicator.calculate_historical()
-        self.__jobs.put(do_historical_calculations)
+    def __load_historical(self):
+        """Load all historical candles to database"""
+        print('Getting historical candles for market...')
+        data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
+        for entry in data:
+            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry)
+            self.latest_candle = entry
+            self.__do_ta_calculations()
+            print('Writing candle ' + str(entry[0]) + ' to database')
+        self.historical_loaded = True
+        print('Historical data has been loaded.')
+
+    def __pull_latest_candle(self):
+        """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
+        print("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + self.interval)
+        latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
+        while latest_data == self.latest_candle:
+            print('Candle already contained in DB, retrying...')
+            time.sleep(self.exchange.rateLimit * 2 / 1000)
+            latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
+        ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval,
+                                                     latest_data)
+        self.latest_candle = latest_data
 
     def __do_ta_calculations(self):
-        def do_calculations():
-            for indicator in self.indicators:
-                indicator.next_calculation()
-        self.__jobs.put(do_calculations)
+        for indicator in self.indicators:
+            indicator.next_calculation()
 
     def __tick_strategies(self):
-        def tick_strategies():
-            for strategy in self.strategies:
-                strategy.on_data()
-        self.__jobs.put(tick_strategies)
+        for strategy in self.strategies:
+            strategy.on_data()
 
     def apply_indicator(self, indicator):
         self.indicators.append(indicator)
@@ -100,4 +93,4 @@ class Market:
 def update_all_candles(tick_count):
     """Tell all instantiated markets to pull their latest candle"""
     for market in markets:
-        market.pull_latest_candle("5m")
+        market.tick()
