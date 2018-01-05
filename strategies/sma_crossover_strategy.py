@@ -13,7 +13,6 @@ class SmaCrossoverStrategy:
         self.sma = simple_moving_average.SimpleMovingAverage(self.market, "5m", 1440)
         self.vol_change = volume_change_monitor.VolumeChangeMonitor(self.market, "5m")
         self.cached_high = None
-        self.crossed = lambda: self.fma > self.sma
         self.open_position = False
 
     def on_data(self):
@@ -24,11 +23,16 @@ class SmaCrossoverStrategy:
                 self.cached_high = None
                 return
             if self.market.latest_candle[2] > self.cached_high: # open a trade if the latest high is greater than the cached high
-                position_manager.open_position(market, amount, price)  # here we can send a buy signal to our trade executor or whatever we choose
-                # need to decide whether to determine amount and price here
+
+
+                # here is where the action goes down
+                position_manager.open_position(market, amount, price)  # here we can send a buy signal to our trade executor or some other entity
+                # need to decide what we want to decide here and what we want the other entity to decide (amount etc)
+
+                #also if we want this strategy to continually run, we can keep a list of positions and continually open them as conditions work out
 
         # if fma is not already above sma, and has now crossed, and volume is up 5% from last period, send trade signal
-        if not self.crossed() &\
-               self.fma.value > self.sma.value &\
+        if not self.fma.value > self.sma.value and\
+               self.fma.value > self.sma.value and\
                self.vol_change.value > .05:
             self.cached_high = self.market.latest_candle[2]

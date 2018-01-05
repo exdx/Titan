@@ -25,9 +25,11 @@ class SimpleMovingAverage(Indicator):
             self.write_ta_statistic_to_db()
 
     def do_calculation(self):
-        self.value = sma(self.dataset['Close'].tolist(), self.periods)[-1]
-        self.close = self.dataset['Close'].tolist()[0]
-        self.timestamp = self.dataset['Timestamp'].tolist()[0]
+        #self.value = sma(self.get_dataframe()['Close'].tolist(), self.periods)[-1]
+        data = list(candle[4] for candle in self.dataset)
+        self.value = sma(data, self.periods)[-1]
+        self.close = self.market.latest_candle[4]
+        self.timestamp = self.market.latest_candle[0]
 
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""
@@ -41,6 +43,3 @@ class SimpleMovingAverage(Indicator):
         with database.lock:
             ins = database.TAIdentifier.insert().values(TA_ID=1, Description='A basic SMA Crossover Strategy')
             conn.execute(ins)
-
-
-

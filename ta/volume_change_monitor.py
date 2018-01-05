@@ -26,12 +26,13 @@ class VolumeChangeMonitor(Indicator):
         if self.__previous_volume is not 0:
             self.value = (new_volume - self.__previous_volume)/self.__previous_volume
         self.__previous_volume = new_volume
-        self.timestamp = self.dataset['Timestamp'].tolist()[0]
+        self.timestamp = self.market.latest_candle[0]
+        self.close = self.market.latest_candle[4]
 
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""
         with database.lock:
-                ins = database.TAMovingAverage.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, INTERVAL=self.periods, VALUE=self.value)
+                ins = database.TAVolumeChange.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, INTERVAL=self.periods, VALUE=self.value)
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 

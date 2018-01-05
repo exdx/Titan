@@ -39,7 +39,7 @@ class Market:
                     print("Executing job: " + job.__name__ + " on " + self.exchange.id + " " + self.analysis_pair)
                     job()
                 except Exception as e:
-                    print(job.__name__ + "threw error:\n" + str(e))
+                    print(job.__name__ + " threw error:\n" + str(e))
 
     def stop(self):
         """Stop listener queue"""
