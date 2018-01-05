@@ -24,7 +24,7 @@ class VolumeChangeMonitor(Indicator):
     def do_calculation(self):
         new_volume = self.market.latest_candle[5]
         if self.__previous_volume is not 0:
-            self.value = (new_volume - self.__previous_volume)/self.__previous_volume
+            self.value = (new_volume - self.__previous_volume)/self.__previous_volume # calculate change in volume in percent (decimal format)
         self.__previous_volume = new_volume
         self.timestamp = self.market.latest_candle[0]
         self.close = self.market.latest_candle[4]

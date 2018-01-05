@@ -19,7 +19,7 @@ class SmaCrossoverStrategy:
         """will run every time a new candle is pulled"""
         # if we already have a closing high saved, we need to check whether were still crossed over, and if we need to open a trade
         if self.cached_high is not None:
-            if not self.crossed(): # if we're no longer fma > sma, forget about saved high
+            if not self.fma.value > self.sma.value: # if we're no longer fma > sma, forget about saved high
                 self.cached_high = None
                 return
             if self.market.latest_candle[2] > self.cached_high: # open a trade if the latest high is greater than the cached high
