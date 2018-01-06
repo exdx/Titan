@@ -12,6 +12,7 @@ class SmaCrossoverStrategy:
         self.fma = simple_moving_average.SimpleMovingAverage(self.market, "5m", 12)
         self.sma = simple_moving_average.SimpleMovingAverage(self.market, "5m", 1440)
         self.vol_change = volume_change_monitor.VolumeChangeMonitor(self.market, "5m")
+        self.market.apply_strategy(self)
         self.cached_high = None
         self.open_position = False
 
