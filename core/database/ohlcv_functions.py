@@ -49,6 +49,7 @@ def has_candle(candle_data, exchange, pair, interval):
     result.close()
     return False
 
+
 def write_trade_pairs_to_db(PairID, Base, Quote):
     with database.lock:
         ins = database.TradingPairs.insert().values(PairID=PairID, BaseCurrency=Base, QuoteCurrency=Quote)
@@ -56,6 +57,6 @@ def write_trade_pairs_to_db(PairID, Base, Quote):
 
 
 def convert_timestamp_to_date(timestamp):
-    value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3])) #  *this might only work on bittrex candle timestamps
+    value = datetime.datetime.fromtimestamp(float(str(timestamp)[:-3]))  #this might only work on bittrex candle timestamps
     return value.strftime('%Y-%m-%d %H:%M:%S')
 

@@ -1,7 +1,6 @@
 from core.markets import market
 from core.database import database
 from strategies import sma_crossover_strategy
-from ta import simple_moving_average
 import time
 
 
@@ -26,17 +25,18 @@ def main():
         time.sleep(300) #idk
 
 
-try:
-    # wipe and recreate tables
-    database.reset_db()
+if __name__ == '__main__':
+    try:
+        # wipe and recreate tables
+        database.reset_db()
 
-    # run main
-    main()
+        # run main
+        main()
 
-except Exception as e:
-    print(e)
+    except Exception as e:
+        print(e)
 
-finally:
-    database.engine.dispose()
+    finally:
+        database.engine.dispose()
 
 
