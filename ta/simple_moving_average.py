@@ -24,14 +24,14 @@ class SimpleMovingAverage(Indicator):
 
     def do_calculation(self):
         data = list(candle[4] for candle in self.dataset)
-        self.value = sma(data, self.periods)[-1]
+        self.value = round(sma(data, self.periods)[-1], 6)
         self.close = self.market.latest_candle[4]
         self.timestamp = ohlcv_functions.convert_timestamp_to_date(self.market.latest_candle[0])
 
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""
         with database.lock:
-                ins = database.TAMovingAverage.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, INTERVAL=self.periods, VALUE=self.value)
+                ins = database.TAMovingAverage.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, Interval=self.periods, MovingAverage=self.value)
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 

@@ -1,5 +1,5 @@
 from collections import deque
-from pandas import DataFrame
+
 
 class Indicator:
     """Base class for indicators that handles the data, keeping it in RAM so no DB calls are needed"""
