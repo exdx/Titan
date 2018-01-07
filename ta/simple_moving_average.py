@@ -38,5 +38,5 @@ class SimpleMovingAverage(Indicator):
     def write_strategy_description_to_db(self):
         """Add ID and description to TAIdentifier table"""
         with database.lock:
-            ins = database.TAIdentifier.insert().values(TA_ID=1, Description='A basic SMA Crossover Strategy')
+            ins = database.TAIdentifier.insert().values(Description='A basic SMA Crossover Strategy - Moving Average {}'.format(self.periods))
             conn.execute(ins)

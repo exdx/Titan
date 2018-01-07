@@ -31,7 +31,7 @@ TradingPairs = Table('TradingPairs', metadata,
                      )
 
 TAIdentifier = Table('TAIdentifier', metadata,
-                      Column('TA_ID', Integer),
+                      Column('TA_ID', Integer, primary_key=True),
                       Column('Description', String),
                       )
 

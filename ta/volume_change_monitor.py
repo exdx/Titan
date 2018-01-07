@@ -37,5 +37,5 @@ class VolumeChangeMonitor(Indicator):
     def write_strategy_description_to_db(self):
         '''Add ID and description to TAIdentifier table'''
         with database.lock:
-            ins = database.TAIdentifier.insert().values(TA_ID=1, Description='Keeps track of volume changes between each period')
+            ins = database.TAIdentifier.insert().values(Description='Keeps track of volume changes between each period')
             conn.execute(ins)
