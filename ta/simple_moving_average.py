@@ -1,8 +1,6 @@
 from core.database import ohlcv_functions
 from pyti.simple_moving_average import simple_moving_average as sma
-from pyti.exponential_moving_average import exponential_moving_average as ema
 from core.database import database
-from threading import Lock
 from ta.indicator import Indicator
 
 engine = database.engine
@@ -18,28 +16,27 @@ class SimpleMovingAverage(Indicator):
         self.value = None
 
     def next_calculation(self):
-        """get latest N candles from market, do calculation, write results to db"""
+        """Get latest N candles from market, do calculation, write results to db"""
         self.update_dataset(self.market.latest_candle)
         if len(self.dataset) == self.periods:
             self.do_calculation()
             self.write_ta_statistic_to_db()
 
     def do_calculation(self):
-        #self.value = sma(self.get_dataframe()['Close'].tolist(), self.periods)[-1]
         data = list(candle[4] for candle in self.dataset)
-        self.value = sma(data, self.periods)[-1]
+        self.value = round(sma(data, self.periods)[-1], 6)
         self.close = self.market.latest_candle[4]
-        self.timestamp = self.market.latest_candle[0]
+        self.timestamp = ohlcv_functions.convert_timestamp_to_date(self.market.latest_candle[0])
 
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""
         with database.lock:
-                ins = database.TAMovingAverage.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, INTERVAL=self.periods, VALUE=self.value)
+                ins = database.TAMovingAverage.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, Interval=self.periods, MovingAverage=self.value)
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 
     def write_strategy_description_to_db(self):
-        '''Add ID and description to TAIdentifier table'''
+        """Add ID and description to TAIdentifier table"""
         with database.lock:
-            ins = database.TAIdentifier.insert().values(TA_ID=1, Description='A basic SMA Crossover Strategy')
+            ins = database.TAIdentifier.insert().values(Description='A basic SMA Crossover Strategy - Moving Average {}'.format(self.periods))
             conn.execute(ins)

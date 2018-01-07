@@ -1,6 +1,4 @@
 from core.database import ohlcv_functions
-from pyti.simple_moving_average import simple_moving_average as sma
-from pyti.exponential_moving_average import exponential_moving_average as ema
 from core.database import database
 from ta.indicator import Indicator
 
@@ -24,20 +22,20 @@ class VolumeChangeMonitor(Indicator):
     def do_calculation(self):
         new_volume = self.market.latest_candle[5]
         if self.__previous_volume is not 0:
-            self.value = (new_volume - self.__previous_volume)/self.__previous_volume # calculate change in volume in percent (decimal format)
+            self.value = round(100 * ((new_volume - self.__previous_volume)/self.__previous_volume), 2)  # calculate change in volume in percentage terms
         self.__previous_volume = new_volume
-        self.timestamp = self.market.latest_candle[0]
+        self.timestamp = ohlcv_functions.convert_timestamp_to_date(self.market.latest_candle[0])
         self.close = self.market.latest_candle[4]
 
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""
         with database.lock:
-                ins = database.TAVolumeChange.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, INTERVAL=self.periods, VALUE=self.value)
+                ins = database.TAVolumeChange.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, Interval=self.periods, PercentVolumeChange=self.value)
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 
     def write_strategy_description_to_db(self):
         '''Add ID and description to TAIdentifier table'''
         with database.lock:
-            ins = database.TAIdentifier.insert().values(TA_ID=1, Description='Keeps track of volume changes between each period')
+            ins = database.TAIdentifier.insert().values(Description='Keeps track of volume changes between each period')
             conn.execute(ins)

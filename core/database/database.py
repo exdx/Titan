@@ -31,7 +31,7 @@ TradingPairs = Table('TradingPairs', metadata,
                      )
 
 TAIdentifier = Table('TAIdentifier', metadata,
-                      Column('TA_ID', Integer),
+                      Column('TA_ID', Integer, primary_key=True),
                       Column('Description', String),
                       )
 
@@ -40,8 +40,8 @@ TAMovingAverage = Table ('TAMovingAverage', metadata,
                          Column('Pair', String),
                          Column('Time', String),
                          Column('Close', Float),
-                         Column('INTERVAL', Integer),
-                         Column('VALUE', Float),
+                         Column('Interval', Integer),
+                         Column('MovingAverage', Float),
                          )
 
 TAVolumeChange = Table ('TAVolumeChange', metadata,
@@ -49,8 +49,8 @@ TAVolumeChange = Table ('TAVolumeChange', metadata,
                          Column('Pair', String),
                          Column('Time', String),
                          Column('Close', Float),
-                         Column('INTERVAL', Integer),
-                         Column('VALUE', Float),
+                         Column('Interval', Integer),
+                         Column('PercentVolumeChange', Float),
                          )
 
 def drop_tables():
