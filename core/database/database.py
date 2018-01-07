@@ -1,11 +1,12 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, Integer, String, Float, MetaData, ForeignKey
+from threading import Lock
 
 
 db_name = 'core.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
-
+lock = Lock()
 engine = create_engine('sqlite:///{}'.format(db_fullpath), connect_args={'check_same_thread': False}, echo=True)
 
 metadata = MetaData()
@@ -39,11 +40,17 @@ TAMovingAverage = Table ('TAMovingAverage', metadata,
                          Column('Pair', String),
                          Column('Time', String),
                          Column('Close', Float),
-                         Column('MA_SLOW_INTERVAL', Integer),
-                         Column('MA_SLOW', Float),
-                         Column('MA_FAST_INTERVAL', Integer),
-                         Column('MA_FAST', Float),
-                         Column('VOLUME_CHANGE', Float),
+                         Column('INTERVAL', Integer),
+                         Column('VALUE', Float),
+                         )
+
+TAVolumeChange = Table ('TAVolumeChange', metadata,
+                         Column('TA_Det_ID', Integer, primary_key=True),
+                         Column('Pair', String),
+                         Column('Time', String),
+                         Column('Close', Float),
+                         Column('INTERVAL', Integer),
+                         Column('VALUE', Float),
                          )
 
 def drop_tables():
