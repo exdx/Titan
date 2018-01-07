@@ -30,7 +30,7 @@ class VolumeChangeMonitor(Indicator):
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""
         with database.lock:
-                ins = database.TAVolumeChange.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, Interval=self.periods, VolumeChange=self.value)
+                ins = database.TAVolumeChange.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, Interval=self.periods, PercentVolumeChange=self.value)
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 

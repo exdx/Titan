@@ -50,7 +50,7 @@ TAVolumeChange = Table ('TAVolumeChange', metadata,
                          Column('Time', String),
                          Column('Close', Float),
                          Column('Interval', Integer),
-                         Column('VolumeChange', Float),
+                         Column('PercentVolumeChange', Float),
                          )
 
 def drop_tables():
