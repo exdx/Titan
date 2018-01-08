@@ -1,23 +1,20 @@
 import matplotlib.pyplot as plt
 from core.database import ohlcv_functions
+import pandas as pd
+from core.markets import market
 
-#Library to explore visualization of API data. Critical to ensure data integrity as well as confirm strategy indicators are calculated correctly .
+# Library to explore visualization of API data. Critical to ensure data integrity as well as confirm strategy indicators are calculated correctly .
 
-class BasePlot:
-    def __init__(self, exchange, pair, interval, N_candles):
-        self.exchange = exchange
-        self.pair = pair
-        self.interval = interval
-        self.N_candles = N_candles
 
-    def basic_plot(self):
-        '''Make basic matplotlib line chart with close on the Y axis'''
-        latest_N_ohlcv_candles = ohlcv_functions.get_latest_N_candles_as_df(self.exchange, self.pair, self.interval, self.N_candles)
-        close = latest_N_ohlcv_candles['Close'].tolist()
-
-        plt.plot(close)
+def historical_ta_plot(historical_status):
+    """Make basic matplotlib line chart with close and moving averages on the Y axis for historical data and new candles"""
+    if historical_status:
+        data = ohlcv_functions.get_historical_ta_data_as_df()
+        data.groupby('Interval').plot(x='TA_Det_ID', y=['Close', 'MovingAverage'])
         plt.show()
 
-Plot = BasePlot('bittrex', 'ETH/BTC', '1m', 50)
-Plot.basic_plot()
+
+historical_ta_plot(True)
+
+
 

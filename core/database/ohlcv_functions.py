@@ -35,6 +35,14 @@ def get_latest_N_candles_as_df(exchange, pair, interval, N):
     result.close()
     return df
 
+def get_historical_ta_data_as_df():
+    s = select([database.TAMovingAverage]).order_by(database.TAMovingAverage.c.TA_Det_ID.asc())
+    result = conn.execute(s)
+    df = pd.DataFrame(result.fetchall())
+    df.columns = result.keys()
+    result.close()
+    #historical_ta_data = df['TA_Det_ID', 'Close', 'Interval', 'MovingAverage']
+    return df
 
 def has_candle(candle_data, exchange, pair, interval):
     """Checks to see if the candle is already in the historical dataset pulled"""
