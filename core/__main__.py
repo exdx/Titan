@@ -14,9 +14,9 @@ def main():
     while True:
         """Running this 'ticker' from the main loop to trigger listeners to pull candles each minute"""
         print("Live Tick: {}".format(str(live_tick_count)))
-        market.update_all_candles(live_tick_count)
+        market.update_all_candles()
 
-        print('Wrote live candle #{} to DB and calculated moving average. Waiting for next live candle...'.format(live_tick_count))
+        print('Wrote live candle #{} to DB and calculated moving average. Waiting for next live candle...'.format(str(live_tick_count)))
 
         live_tick_count += 1
 

@@ -7,6 +7,7 @@ from queue import Queue
 
 markets = []
 
+
 class Market:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
     def __init__(self, exchange, base_currency, quote_currency):
@@ -24,8 +25,8 @@ class Market:
         self.indicators = []
         self.strategies = []
         self.latest_candle = None
-        self.PairID = random.randint(1,100)
-        ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency) #auto-write initialized market to DB with unique identifier
+        self.PairID = random.randint(1, 100)
+        ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
         markets.append(self)
         self.__jobs.put(self.__load_historical)
 
@@ -90,7 +91,8 @@ class Market:
     def apply_strategy(self, strategy):
         self.strategies.append(strategy)
 
-def update_all_candles(tick_count):
+
+def update_all_candles():
     """Tell all instantiated markets to pull their latest candle"""
     for market in markets:
         market.tick()
