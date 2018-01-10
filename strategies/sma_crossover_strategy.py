@@ -1,16 +1,17 @@
 import core.database
 from ta import simple_moving_average
 from ta import volume_change_monitor
-from core.markets import market
+from strategies.base_strategy import BaseStrategy
 from core.markets import position_manager
 
 #an implementation of the simple crossover strategy defined in the google doc
-class SmaCrossoverStrategy:
-    def __init__(self, market):
-        """here is where you determine your values to kep track of, markets to use, etc"""
+class SmaCrossoverStrategy(BaseStrategy):
+    def __init__(self, market, sma_short, sma_long):
+        """here is where you determine your values to keep track of, etc"""
+        super().__init__()
         self.market = market
-        self.fma = simple_moving_average.SimpleMovingAverage(self.market, "5m", 12)
-        self.sma = simple_moving_average.SimpleMovingAverage(self.market, "5m", 1440)
+        self.fma = simple_moving_average.SimpleMovingAverage(self.market, "5m", sma_short)
+        self.sma = simple_moving_average.SimpleMovingAverage(self.market, "5m", sma_long)
         self.vol_change = volume_change_monitor.VolumeChangeMonitor(self.market, "5m")
         self.market.apply_strategy(self)
         self.cached_high = None
@@ -27,7 +28,7 @@ class SmaCrossoverStrategy:
 
 
                 # here is where the action goes down
-                position_manager.open_position(market, amount, price)  # here we can send a buy signal to our trade executor or some other entity
+                position_manager.open_position(self.market, amount, price)  # here we can send a buy signal to our trade executor or some other entity
                 # need to decide what we want to decide here and what we want the other entity to decide (amount etc)
 
                 #also if we want this strategy to continually run, we can keep a list of positions and continually open them as conditions work out

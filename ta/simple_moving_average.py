@@ -1,15 +1,15 @@
 from core.database import ohlcv_functions
 from pyti.simple_moving_average import simple_moving_average as sma
 from core.database import database
-from ta.indicator import Indicator
+from ta.base_indicator import BaseIndicator
 
 engine = database.engine
 conn = engine.connect()
 
 
-class SimpleMovingAverage(Indicator):
+class SimpleMovingAverage(BaseIndicator):
     def __init__(self, market, interval, periods):
-        super(SimpleMovingAverage, self).__init__(market, interval, periods)
+        super().__init__(market, interval, periods)
         self.write_strategy_description_to_db()
         self.close = None
         self.timestamp = None

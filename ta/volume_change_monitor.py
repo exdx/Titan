@@ -1,11 +1,11 @@
 from core.database import ohlcv_functions
 from core.database import database
-from ta.indicator import Indicator
+from ta.base_indicator import BaseIndicator
 
 engine = database.engine
 conn = engine.connect()
 
-class VolumeChangeMonitor(Indicator):
+class VolumeChangeMonitor(BaseIndicator):
     def __init__(self, market, interval):
         super(VolumeChangeMonitor, self).__init__(market, interval, 2)
         self.write_strategy_description_to_db()

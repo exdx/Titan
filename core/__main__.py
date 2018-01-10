@@ -8,7 +8,7 @@ def main():
     print("Running...")
     print("Market 1 instantiated...")
     ETH_BTC_Bittrex = market.Market('bittrex', 'ETH', 'BTC')  # instantiate market
-    sma_crossover_strategy.SmaCrossoverStrategy(ETH_BTC_Bittrex)  # instantiate strategy with market
+    sma_crossover_strategy.SmaCrossoverStrategy(ETH_BTC_Bittrex, 12, 1440)  # instantiate strategy with market
 
     live_tick_count = 0
     while True:
