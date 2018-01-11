@@ -20,6 +20,7 @@ class Order:
         self.price = price
 
     def pull_orderbook(self):
+        """Pulls orderbook and finds best ask and bid prices to trade at the time"""
         orderbook = self.exchange.fetch_order_book(self.pair)
         self.best_bid = orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
         self.best_ask = orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
@@ -28,6 +29,7 @@ class Order:
         print(session)
 
     def get_exchange_login(self):
+        """Put API Key and Secret into login-real.txt file on your local machine"""
         login_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'login-real.txt')
         with open(login_file) as f:
             data = f.read().splitlines()
