@@ -1,4 +1,5 @@
 from core.markets import market
+from core.markets import market_simulator
 from core.database import database
 from strategies import sma_crossover_strategy
 import time
@@ -7,8 +8,8 @@ import time
 def main():
     print("Running...")
     print("Market 1 instantiated...")
-    ETH_BTC_Bittrex = market.Market('bittrex', 'ETH', 'BTC')  # instantiate market
-    sma_crossover_strategy.SmaCrossoverStrategy(ETH_BTC_Bittrex, 12, 1440)  # instantiate strategy with market
+    ETH_BTC_Bittrex = market_simulator.MarketSimulator('bittrex', 'ETH', 'BTC', 10)  # instantiate market
+    sma_crossover_strategy.SmaCrossoverStrategy(ETH_BTC_Bittrex, 30, 1440)  # instantiate strategy with market
 
     live_tick_count = 0
     while True:

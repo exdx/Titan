@@ -28,7 +28,7 @@ class Market:
         self.PairID = random.randint(1, 100)
         ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
         markets.append(self)
-        self.__jobs.put(self.__load_historical)
+        self.__jobs.put(self._load_historical)
 
     def run(self):
         """Start listener queue waiting for ticks"""
@@ -49,23 +49,23 @@ class Market:
     def tick(self):
         """Initiate pull of latest candle, ta calculations, and notify strategies"""
         if self.historical_loaded:
-            self.__jobs.put(self.__pull_latest_candle)
-            self.__jobs.put(self.__do_ta_calculations)
-            self.__jobs.put(self.__tick_strategies)
+            self.__jobs.put(self._pull_latest_candle)
+            self.__jobs.put(self._do_ta_calculations)
+            self.__jobs.put(self._tick_strategies)
 
-    def __load_historical(self):
+    def _load_historical(self):
         """Load all historical candles to database"""
         print('Getting historical candles for market...')
         data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
         for entry in data:
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry)
             self.latest_candle = entry
-            self.__do_ta_calculations()
+            self._do_ta_calculations()
             print('Writing candle ' + str(entry[0]) + ' to database')
         self.historical_loaded = True
         print('Historical data has been loaded.')
 
-    def __pull_latest_candle(self):
+    def _pull_latest_candle(self):
         """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
         print("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + self.interval)
         latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-1]
@@ -77,11 +77,11 @@ class Market:
                                                      latest_data)
         self.latest_candle = latest_data
 
-    def __do_ta_calculations(self):
+    def _do_ta_calculations(self):
         for indicator in self.indicators:
             indicator.next_calculation()
 
-    def __tick_strategies(self):
+    def _tick_strategies(self):
         for strategy in self.strategies:
             strategy.on_data()
 

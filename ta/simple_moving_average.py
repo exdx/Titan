@@ -21,6 +21,7 @@ class SimpleMovingAverage(BaseIndicator):
         if len(self.dataset) == self.periods:
             self.do_calculation()
             self.write_ta_statistic_to_db()
+            print("Calculated new moving average: " + str(self.value))
 
     def do_calculation(self):
         data = list(candle[4] for candle in self.dataset)

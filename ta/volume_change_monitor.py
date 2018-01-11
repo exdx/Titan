@@ -18,6 +18,7 @@ class VolumeChangeMonitor(BaseIndicator):
         """get latest N candles from market, do calculation, write results to db"""
         self.do_calculation()
         self.write_ta_statistic_to_db()
+        print("Calculated new volume change: " + str(self.value))
 
     def do_calculation(self):
         new_volume = self.market.latest_candle[5]
