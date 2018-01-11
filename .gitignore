@@ -56,5 +56,9 @@ Temporary Items
 
 *.db-journal
 
+#login file with real exchange credentials on local machine
+#structure is as follows
+#API KEY
+#SECRET KEY
 
 login-real.txt
