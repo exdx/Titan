@@ -35,14 +35,17 @@ class MarketSimulator(Market):
     def get_bid_price(self):
         return self.exchange.fetchTicker(self.analysis_pair)['bid']
 
-    def _load_historical(self):
+    def load_historical(self, interval):
+        self._jobs.put(lambda: self._load_historical(interval))
+
+    def _load_historical(self, interval):
         """Load all historical candles to database"""
         print('Getting historical candles for market...')
-        data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
+        data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
         for entry in data:
-            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry)
+            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
             self.latest_candle = entry
-            self._do_ta_calculations()
+            self._do_ta_calculations(interval)
             self._tick_strategies()
             print('Writing candle ' + str(entry[0]) + ' to database')
         self.historical_loaded = True

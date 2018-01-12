@@ -66,7 +66,7 @@ class Position(Order):
 
 
 
-test_object = Order('bittrex','ETH/BTC',1,0.004)
-test_object.pull_orderbook()
-test_object.get_exchange_login()
-test_object.get_wallet_balance()
+#test_object = Order('bittrex','ETH/BTC',1,0.004)
+#test_object.pull_orderbook()
+#test_object.get_exchange_login()
+#test_object.get_wallet_balance()

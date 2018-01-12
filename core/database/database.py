@@ -7,8 +7,7 @@ from threading import Lock
 db_name = 'core.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
 lock = Lock()
-engine = create_engine('sqlite:///{}'.format(db_fullpath), connect_args={'check_same_thread': False}, echo=True)
-
+engine = create_engine('sqlite:///{}'.format(db_fullpath), connect_args={'check_same_thread': False}, echo=False)
 metadata = MetaData()
 
 OHLCV = Table('OHLCV', metadata,

@@ -1,4 +1,5 @@
 import core.database
+from core.markets.market_simulator import MarketSimulator
 from ta import simple_moving_average
 from ta import volume_change_monitor
 from strategies.base_strategy import BaseStrategy
@@ -6,10 +7,11 @@ from core.markets import position_manager
 
 #an implementation of the simple crossover strategy defined in the google doc
 class SmaCrossoverStrategy(BaseStrategy):
-    def __init__(self, market, sma_short, sma_long):
+    def __init__(self, sma_short, sma_long):
         """here is where you determine your values to keep track of, etc"""
         super().__init__()
-        self.market = market
+        self.market = MarketSimulator('bittrex', 'ETH', 'BTC', 10)
+        self.market.load_historical("5m")
         self.fma = simple_moving_average.SimpleMovingAverage(self.market, "5m", sma_short)
         self.sma = simple_moving_average.SimpleMovingAverage(self.market, "5m", sma_long)
         self.vol_change = volume_change_monitor.VolumeChangeMonitor(self.market, "5m")
@@ -29,9 +31,9 @@ class SmaCrossoverStrategy(BaseStrategy):
                 print("Closed position")
 
         elif (self.sma.value is not None) & (self.fma.value is not None) & (self.vol_change.value is not None):
-            print("SMA: " + self.sma.value)
-            print("FMA: " + self.fma.value)
-            print("VOL Change: " + self.vol_change.value)
+            print("SMA: " + str(self.sma.value))
+            print("FMA: " + str(self.fma.value))
+            print("VOL Change: " + str(self.vol_change.value))
             # if we already have a closing high saved, we need to check whether were still crossed over, and if we need to open a trade
             if self.cached_high is not None:
                 print("Checking if current price is greater than cached high")
@@ -49,7 +51,6 @@ class SmaCrossoverStrategy(BaseStrategy):
                     return
                     # here we can send a buy signal to our trade executor or some other entity
                     # need to decide what we want to decide here and what we want the other entity to decide (amount etc)
-
                     #also if we want this strategy to continually run, we can keep a list of positions and continually open them as conditions work out
 
             # if fma is not already above sma, and has now crossed, and volume is up 5% from last period, send trade signal
