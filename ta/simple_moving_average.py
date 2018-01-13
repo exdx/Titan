@@ -17,7 +17,7 @@ class SimpleMovingAverage(BaseIndicator):
 
     def next_calculation(self):
         """Get latest N candles from market, do calculation, write results to db"""
-        self.update_dataset(self.market.latest_candle)
+        self.update_dataset(self.market.latest_candle[self.interval])
         if len(self.dataset) == self.periods:
             self.do_calculation()
             self.write_ta_statistic_to_db()
@@ -26,8 +26,8 @@ class SimpleMovingAverage(BaseIndicator):
     def do_calculation(self):
         data = list(candle[4] for candle in self.dataset)
         self.value = round(sma(data, self.periods)[-1], 6)
-        self.close = self.market.latest_candle[4]
-        self.timestamp = ohlcv_functions.convert_timestamp_to_date(self.market.latest_candle[0])
+        self.close = self.market.latest_candle[self.interval][4]
+        self.timestamp = ohlcv_functions.convert_timestamp_to_date(self.market.latest_candle[self.interval][0])
 
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""

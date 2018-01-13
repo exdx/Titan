@@ -25,15 +25,19 @@ class SmaCrossoverStrategy(BaseStrategy):
         print("SMA CROSSOVER STRATEGY receiving data")
         if self.open_position:
             print("Position currently open, checking if should sell")
-            if (self.market.get_bid_price() / self.buy_price) > .03:
+            bid = self.market.get_bid_price()
+            percent_change = ((bid - self.buy_price)/self.buy_price)*100
+            if percent_change > 3:
+                print("Bought in at " + str(self.buy_price) + " price now " + str(bid))
+                print("Price increased by " + str(percent_change) + "%")
                 self.market.sell(1)
                 self.open_position = False
-                print("Closed position")
+                print("Closing position")
 
         elif (self.sma.value is not None) & (self.fma.value is not None) & (self.vol_change.value is not None):
             print("SMA: " + str(self.sma.value))
             print("FMA: " + str(self.fma.value))
-            print("VOL Change: " + str(self.vol_change.value))
+            print("VOL Change: " + str(self.vol_change.value) + "%")
             # if we already have a closing high saved, we need to check whether were still crossed over, and if we need to open a trade
             if self.cached_high is not None:
                 print("Checking if current price is greater than cached high")
@@ -41,21 +45,17 @@ class SmaCrossoverStrategy(BaseStrategy):
                     print("FMA has gone below SMA, forgetting cached high")
                     self.cached_high = None
                     return
-                if self.market.latest_candle[2] > self.cached_high: # open a trade if the latest high is greater than the cached high
-                    print("Price has exceeded cached high, opening position")
-
-                    # here is where the action goes down
+                if self.market.latest_candle['5m'][2] > self.cached_high: # open a trade if the latest high is greater than the cached high
+                    print("Current high of " + str(self.market.latest_candle['5m'][2]) + " has exceeded cached high of " + str(self.cached_high) + ", opening position")
                     self.market.buy(1)
                     self.buy_price = self.market.get_ask_price()
+                    self.cached_high = None
                     self.open_position = True
                     return
-                    # here we can send a buy signal to our trade executor or some other entity
-                    # need to decide what we want to decide here and what we want the other entity to decide (amount etc)
-                    #also if we want this strategy to continually run, we can keep a list of positions and continually open them as conditions work out
 
             # if fma is not already above sma, and has now crossed, and volume is up 5% from last period, send trade signal
-            if not self.fma.value > self.sma.value and\
-                   self.fma.value > self.sma.value and\
-                   self.vol_change.value > .05:
-                print("FMA has crossed SMA, caching current high")
-                self.cached_high = self.market.latest_candle[2]
+            elif self.cached_high is None and\
+                    self.fma.value > self.sma.value and\
+                    self.vol_change.value > 5:
+                print("FMA has crossed SMA, caching current high of " + str(self.market.latest_candle['5m'][2]))
+                self.cached_high = self.market.latest_candle['5m'][2]

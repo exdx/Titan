@@ -8,7 +8,7 @@ import time
 def main():
 
     print("Instantiating crossover strategy")
-    sma_crossover_strategy.SmaCrossoverStrategy(30, 1440)
+    sma_crossover_strategy.SmaCrossoverStrategy(100, 770)
 
 
     print("5m ticker running...")

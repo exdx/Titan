@@ -24,7 +24,7 @@ class Market:
         self.historical_loaded = False
         self.indicators = defaultdict(list)
         self.strategies = []
-        self.latest_candle = None
+        self.latest_candle = defaultdict(list)
         self.PairID = random.randint(1, 100)
         ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
         markets.append(self)
@@ -57,12 +57,14 @@ class Market:
         self._jobs.put(lambda: self._load_historical(interval))
 
     def _load_historical(self, interval):
-        """Load all historical candles to database"""
+        """Load all historical candles to database
+        This method overrides the load historical of the base class as it is a blocking method (not added to thread queue)
+        and ticks applied strategies on historical datat yg"""
         print('Getting historical candles for market...')
         data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
         for entry in data:
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
-            self.latest_candle = entry
+            self.latest_candle[interval] = entry
             self._do_ta_calculations(interval)
             print('Writing candle ' + str(entry[0]) + ' to database')
         self.historical_loaded = True
@@ -72,13 +74,13 @@ class Market:
         """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
         print("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
         latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
-        while latest_data == self.latest_candle:
+        while latest_data == self.latest_candle[interval]:
             print('Candle already contained in DB, retrying...')
             time.sleep(self.exchange.rateLimit * 2 / 1000)
             latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
         ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval,
                                                      latest_data)
-        self.latest_candle = latest_data
+        self.latest_candle[interval] = latest_data
 
     def _do_ta_calculations(self, interval):
         """Notify all indicators subscribed to the interval of a new candle"""

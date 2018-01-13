@@ -21,17 +21,17 @@ class VolumeChangeMonitor(BaseIndicator):
         print("Calculated new volume change: " + str(self.value))
 
     def do_calculation(self):
-        new_volume = self.market.latest_candle[5]
+        new_volume = self.market.latest_candle[self.interval][5]
         if self.__previous_volume is not 0:
             self.value = round(100 * ((new_volume - self.__previous_volume)/self.__previous_volume), 2)  # calculate change in volume in percentage terms
         self.__previous_volume = new_volume
-        self.timestamp = ohlcv_functions.convert_timestamp_to_date(self.market.latest_candle[0])
-        self.close = self.market.latest_candle[4]
+        self.timestamp = ohlcv_functions.convert_timestamp_to_date(self.market.latest_candle[self.interval][0])
+        self.close = self.market.latest_candle[self.interval][4]
 
     def write_ta_statistic_to_db(self):
         """Inserts average into table"""
         with database.lock:
-                ins = database.TAVolumeChange.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, Interval=self.periods, PercentVolumeChange=self.value)
+                ins = database.TAVolumeChange.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Volume=self.__previous_volume, Interval=self.periods, PercentVolumeChange=self.value)
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 

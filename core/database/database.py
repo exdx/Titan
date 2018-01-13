@@ -47,7 +47,7 @@ TAVolumeChange = Table ('TAVolumeChange', metadata,
                          Column('TA_Det_ID', Integer, primary_key=True),
                          Column('Pair', String),
                          Column('Time', String),
-                         Column('Close', Float),
+                         Column('Volume', Float),
                          Column('Interval', Integer),
                          Column('PercentVolumeChange', Float),
                          )
