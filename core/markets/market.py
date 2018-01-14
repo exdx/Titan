@@ -1,10 +1,12 @@
 import ccxt
 import time
 import random
+import os
 from collections import defaultdict
 from core.database import ohlcv_functions
 from threading import Thread
 from queue import Queue
+from ccxt import BaseError
 
 markets = []
 
@@ -13,7 +15,8 @@ class Market:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
     def __init__(self, exchange, base_currency, quote_currency):
         exchange = getattr(ccxt, exchange)
-        self.exchange = exchange()
+        self.get_exchange_login()
+        self.exchange = exchange({'apiKey': self.api_key, 'secret': self.secret_key, })
         self.base_currency = base_currency
         self.quote_currency = quote_currency
         self.analysis_pair = '{}/{}'.format(self.base_currency, self.quote_currency)
@@ -59,7 +62,7 @@ class Market:
     def _load_historical(self, interval):
         """Load all historical candles to database
         This method overrides the load historical of the base class as it is a blocking method (not added to thread queue)
-        and ticks applied strategies on historical datat yg"""
+        and ticks applied strategies on historical data"""
         print('Getting historical candles for market...')
         data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
         for entry in data:
@@ -99,6 +102,31 @@ class Market:
     def apply_strategy(self, strategy):
         """Add strategy to list of strategies listening to market's candles"""
         self.strategies.append(strategy)
+
+    def get_exchange_login(self):
+        """Put API Key and Secret into login-real.txt file on your local machine"""
+        login_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'login-real.txt')
+        with open(login_file) as f:
+            data = f.read().splitlines()
+        self.api_key = data[0]
+        self.secret_key = data[1]
+
+    def get_wallet_balance(self):
+        """Get wallet balance for quote currency"""
+        try:
+            print(self.exchange.fetch_balance())
+            return self.exchange.fetch_balance()
+        except BaseError:
+            print("Not logged in properly")
+
+    def pull_orderbook(self):
+        """Pulls orderbook for exchange pair and finds best ask and bid prices to trade at the time"""
+        orderbook = self.exchange.fetch_order_book(self.pair)
+        self.best_bid = orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
+        self.best_ask = orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
+        self.spread = (self.best_ask - self.best_bid) if (self.best_bid and self.best_ask) else None
+        session = (self.exchange.id, 'market price', {'best bid': self.best_bid, 'best ask': self.best_ask, 'spread': self.spread})
+        print(session)
 
 
 def update_all_candles(interval):
