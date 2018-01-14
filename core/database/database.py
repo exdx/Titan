@@ -30,6 +30,7 @@ TradingPairs = Table('TradingPairs', metadata,
                      )
 
 TAIdentifier = Table('TAIdentifier', metadata,
+                      Column('IndicatorID', Integer, primary_key=True),
                       Column('Description', String),
                       )
 
