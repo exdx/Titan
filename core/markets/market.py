@@ -15,7 +15,7 @@ class Market:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
     def __init__(self, exchange, base_currency, quote_currency):
         exchange = getattr(ccxt, exchange)
-        self.get_exchange_login()
+        #self.get_exchange_login()
         self.exchange = exchange({'apiKey': self.api_key, 'secret': self.secret_key, })
         self.base_currency = base_currency
         self.quote_currency = quote_currency
@@ -118,15 +118,6 @@ class Market:
             return self.exchange.fetch_balance()
         except BaseError:
             print("Not logged in properly")
-
-    def pull_orderbook(self):
-        """Pulls orderbook for exchange pair and finds best ask and bid prices to trade at the time"""
-        orderbook = self.exchange.fetch_order_book(self.pair)
-        self.best_bid = orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
-        self.best_ask = orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
-        self.spread = (self.best_ask - self.best_bid) if (self.best_bid and self.best_ask) else None
-        session = (self.exchange.id, 'market price', {'best bid': self.best_bid, 'best ask': self.best_ask, 'spread': self.spread})
-        print(session)
 
 
 def update_all_candles(interval):
