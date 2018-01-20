@@ -15,6 +15,8 @@ class Market:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
     def __init__(self, exchange, base_currency, quote_currency):
         exchange = getattr(ccxt, exchange)
+        self.api_key = None
+        self.secret_key = None
         self.get_exchange_login()
         self.exchange = exchange({'apiKey': self.api_key, 'secret': self.secret_key, })
         self.base_currency = base_currency
@@ -105,11 +107,14 @@ class Market:
 
     def get_exchange_login(self):
         """Put API Key and Secret into login-real.txt file on your local machine"""
-        login_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'login-real.txt')
-        with open(login_file) as f:
-            data = f.read().splitlines()
-        self.api_key = data[0]
-        self.secret_key = data[1]
+        try:
+            login_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'login-real.txt')
+            with open(login_file) as f:
+                data = f.read().splitlines()
+            self.exchange.api_key = data[0]
+            self.exchange.secret_key = data[1]
+        except:
+            print("Invalid login file")
 
     def get_wallet_balance(self):
         """Get wallet balance for quote currency"""

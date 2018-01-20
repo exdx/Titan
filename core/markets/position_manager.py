@@ -8,7 +8,6 @@ from core.database import database
 engine = database.engine
 conn = engine.connect()
 
-order_executor = ThreadPool(processes=1)
 positions = []
 
 
@@ -20,18 +19,21 @@ class Order:
         self.type = type
         self.amount = amount
         self.price = price
-        self.__order_receipt = order_executor.apply_async(self.execute)
+        self.__order_receipt = None
+        self.execute()
 
     def execute(self):
         if self.type == "limit":
             if self.side == "buy":
-                self.market.exchange.create_limit_buy_order(self.market.analysis_pair, self.amount, self.price)
+                self.__order_receipt = self.market.exchange.create_limit_buy_order(self.market.analysis_pair, self.amount, self.price)
                 write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'long', self.amount, self.price)
             elif self.side == "sell":
-                self.self.market.exchange.create_limit_sell_order(self.market.analysis_pair, self.amount, self.price)
+                self.__order_receipt = self.market.exchange.create_limit_sell_order(self.market.analysis_pair, self.amount, self.price)
                 write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'short', self.amount, self.price)
             else:
                 print("Invalid order side: " + self.side + ", specify 'buy' or 'sell' ")
+        elif self.type == "market":
+            print("Market orders not available")
         else:
             print("Invalid order type: " + self.type + ", specify 'limit' or 'market' ")
 
@@ -54,9 +56,13 @@ class Order:
 
 class Position:
     def __init__(self, market, amount, price):
+        positions.append(self)
         self.market = market
         self.amount = amount
         self.price = price
+
+    def update(self):
+        pass
 
     def get_latest_bid(self):
         orderbook = self.market.exchange.fetch_order_book(self.market.pair)
@@ -76,7 +82,10 @@ class LongPosition(Position):
         self.trailing_stoploss = self.calculate_trailing_stoploss()
         self.fixed_stoploss = fixed_stoploss  # we can pass in an actual value to keep our fixed loss at
         self.profit_target = self.calculate_profit_target()
-        self.initial_order = Order(market, "buy", "limit", amount, price)
+        self.initial_order = None
+
+    def open(self):
+        self.initial_order = Order(self.market, "buy", "limit", self.amount, self.price)
 
     def update(self):
         """Use this method to trigger position to check if profit target has been met, and re-set trailiing stop loss"""
@@ -114,20 +123,34 @@ class ShortPosition(Position):
     """Short position is basically just to close out the order successfully ie liquidate_position"""
     def __init__(self, market, amount, price):
         super().__init__(market, amount, price)
-        self.initial_order = Order(market, "sell", "limit", amount, price)
+        self.initial_order = None
+
+    def open(self):
+        self.initial_order = Order(self.market, "sell", "limit", self.amount, self.price)
 
     def confirm_sell_order(self):
         pass
 
 
-def open_long_position(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent):
-    long_position = LongPosition(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent)
-    positions.append(long_position)
+def update_all_positions():
+    for position in positions:
+        position.update()
+
+
+def open_long_position(market):
+    market = market
+    amount = None
+    price = None
+    fixed_stoploss = None
+    trailing_stoploss_percent = None
+    profit_target_percent = None
+    # these values will be determined from the strategy
+
+    LongPosition(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent).open()
 
 
 def open_short_position(market, amount, price):
-    short_position = ShortPosition(market, amount, price)
-    positions.append(short_position)
+    ShortPosition(market, amount, price).open()
 
 
 def calculate_transaction_fee(exchange, pair):

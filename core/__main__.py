@@ -3,7 +3,7 @@ from core.markets import market_simulator
 from core.database import database
 from strategies import sma_crossover_strategy
 import time
-
+from core.markets import position_manager
 
 def main():
 
@@ -17,6 +17,7 @@ def main():
         """Running this 'ticker' from the main loop to trigger listeners to pull candles every 5 minutes"""
         print("Live Tick: {}".format(str(live_tick_count)))
         market.update_all_candles('5m')
+        position_manager.update_all_positions()
         print('Wrote live 5m candle #{} to DB and calculated moving average. Waiting for next live candle...'.format(str(live_tick_count)))
         live_tick_count += 1
         time.sleep(300)  # wait 5 minutes
