@@ -1,8 +1,12 @@
 """Module to create, remove, and manage trades currently in play in running strategies"""
-import json
-from ccxt import BaseError
+
 from ccxt import OrderNotFound
 from multiprocessing.pool import ThreadPool
+from core.database import database
+
+
+engine = database.engine
+conn = engine.connect()
 
 order_executor = ThreadPool(processes=1)
 positions = []
@@ -22,8 +26,10 @@ class Order:
         if self.type == "limit":
             if self.side == "buy":
                 self.market.exchange.create_limit_buy_order(self.market.analysis_pair, self.amount, self.price)
+                write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'long', self.amount, self.price)
             elif self.side == "sell":
                 self.self.market.exchange.create_limit_sell_order(self.market.analysis_pair, self.amount, self.price)
+                write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'short', self.amount, self.price)
             else:
                 print("Invalid order side: " + self.side + ", specify 'buy' or 'sell' ")
         else:
@@ -101,12 +107,27 @@ class LongPosition(Position):
 
     def liquidate_position(self):
         """Will use this method to actually create the order that liquidates the position"""
+        open_short_position(self.market, self.amount, self.get_latest_bid())
+
+
+class ShortPosition(Position):
+    """Short position is basically just to close out the order successfully ie liquidate_position"""
+    def __init__(self, market, amount, price):
+        super().__init__(market, amount, price)
+        self.initial_order = Order(market, "sell", "limit", amount, price)
+
+    def confirm_sell_order(self):
         pass
 
 
 def open_long_position(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent):
-    position = LongPosition(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent)
-    positions.append(position)
+    long_position = LongPosition(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent)
+    positions.append(long_position)
+
+
+def open_short_position(market, amount, price):
+    short_position = ShortPosition(market, amount, price)
+    positions.append(short_position)
 
 
 def calculate_transaction_fee(exchange, pair):
@@ -115,3 +136,8 @@ def calculate_transaction_fee(exchange, pair):
 
 def calculate_drawdown():
     pass
+
+def write_order_to_db(exchange, pair, position, amount, price):
+    ins = database.TradingPositions.insert().values(Exchange=exchange, Pair=pair, Position=position, Amount=amount, Price=price)
+    conn.execute(ins)
+    print("Wrote open order to DB...")

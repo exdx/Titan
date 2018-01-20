@@ -52,7 +52,7 @@ TAVolumeChange = Table('TAVolumeChange', metadata,
                          Column('PercentVolumeChange', Float),
                          )
 
-OpenPositions = Table('OpenPositions', metadata,
+TradingPositions = Table('TradingPositions', metadata,
                       Column('PositionID', Integer, primary_key=True),
                       Column('Exchange', Float),
                       Column('Pair', String),
