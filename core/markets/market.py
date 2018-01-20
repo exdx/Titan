@@ -15,7 +15,7 @@ class Market:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
     def __init__(self, exchange, base_currency, quote_currency):
         exchange = getattr(ccxt, exchange)
-        #self.get_exchange_login()
+        self.get_exchange_login()
         self.exchange = exchange({'apiKey': self.api_key, 'secret': self.secret_key, })
         self.base_currency = base_currency
         self.quote_currency = quote_currency
