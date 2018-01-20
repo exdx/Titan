@@ -2,7 +2,7 @@ from core.database import database
 from sqlalchemy.sql import select, and_
 import pandas as pd
 import datetime
-from sqlalchemy.sql import select
+
 
 engine = database.engine
 conn = engine.connect()
