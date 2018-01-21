@@ -28,7 +28,7 @@ class Market:
         self.__thread.start()
         self.historical_loaded = False
         self.indicators = defaultdict(list)
-        self.strategies = []
+        self.signals = []
         self.latest_candle = defaultdict(list)
         self.PairID = random.randint(1, 100)
         ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
@@ -55,7 +55,7 @@ class Market:
         if self.historical_loaded:
             self._jobs.put(lambda: self._pull_latest_candle(interval))
             self._jobs.put(lambda: self._do_ta_calculations(interval))
-            self._jobs.put(self._tick_strategies)
+            self._jobs.put(self._tick_signals())
 
     def load_historical(self, interval):
         """Queue loading of historical candles"""
@@ -92,18 +92,18 @@ class Market:
         for indicator in self.indicators[interval]:
             indicator.next_calculation()
 
-    def _tick_strategies(self):
+    def _tick_signals(self):
         """Notify strategies of a new candle"""
-        for strategy in self.strategies:
+        for strategy in self.signals:
             strategy.on_data()
 
     def apply_indicator(self, indicator):
         """Add indicator to list of indicators listening to market's candles"""
         self.indicators[indicator.interval].append(indicator)
 
-    def apply_strategy(self, strategy):
+    def apply_signal(self, strategy):
         """Add strategy to list of strategies listening to market's candles"""
-        self.strategies.append(strategy)
+        self.signals.append(strategy)
 
     def get_exchange_login(self):
         """Put API Key and Secret into login-real.txt file on your local machine"""
@@ -123,6 +123,14 @@ class Market:
             return self.exchange.fetch_balance()
         except BaseError:
             print("Not logged in properly")
+
+    def get_latest_bid(self):
+        orderbook = self.exchange.fetch_order_book(self.analysis_pair)
+        return orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
+
+    def get_latest_ask(self):
+        orderbook = self.exchange.fetch_order_book(self.analysis_pair)
+        return orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
 
 
 def update_all_candles(interval):

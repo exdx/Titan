@@ -89,7 +89,7 @@ class MarketSimulator(Market):
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
             self.latest_candle[interval] = entry
             self._do_ta_calculations(interval)
-            self._tick_strategies()
+            self._tick_signals()
             print('Writing candle ' + str(entry[0]) + ' to database')
         self.historical_loaded = True
         print('Historical data has been loaded.')
