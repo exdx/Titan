@@ -4,7 +4,7 @@ from core.markets import ticker
 
 def main():
 
-    strategy = poc_strategy.PocStrategy()
+    strategy = poc_strategy.PocStrategy("5m")
     strategy.start()
     ticker.start_ticker(strategy.interval)
 
@@ -12,17 +12,17 @@ def main():
         """Program is running"""
 
 if __name__ == '__main__':
-    #try:
+    try:
         # wipe and recreate tables
         database.reset_db()
 
         # run main
         main()
 
-    #except Exception as e:
-        #print(e)
+    except Exception as e:
+        print(e)
 
-    #finally:
+    finally:
         database.engine.dispose()
 
 

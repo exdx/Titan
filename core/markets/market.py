@@ -124,11 +124,11 @@ class Market:
         except BaseError:
             print("Not logged in properly")
 
-    def get_latest_bid(self):
+    def get_best_bid(self):
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
 
-    def get_latest_ask(self):
+    def get_best_ask(self):
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
 

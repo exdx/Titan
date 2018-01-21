@@ -67,13 +67,13 @@ class Position:
 
 class LongPosition(Position):
     """This class will handle a position's orders, stop losses, and exit/entry"""
-    def __init__(self, market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent):
+    def __init__(self, market, amount, price, fixed_stoploss_percent, trailing_stoploss_percent, profit_target_percent):
         super().__init__(market, amount, price)
         self.is_open = False
         self.profit_target_percent = profit_target_percent
         self.trailing_stoploss_percent = self.price * trailing_stoploss_percent
         self.trailing_stoploss = self.calculate_trailing_stoploss()
-        self.fixed_stoploss = fixed_stoploss  # we can pass in an actual value to keep our fixed loss at
+        self.fixed_stoploss = price * fixed_stoploss_percent  # we can pass in an actual value to keep our fixed loss at
         self.profit_target = self.calculate_profit_target()
         self.initial_order = None
 
@@ -83,9 +83,10 @@ class LongPosition(Position):
 
     def update(self):
         """Use this method to trigger position to check if profit target has been met, and re-set trailiing stop loss"""
-        if self.market.latest_candle[3] < self.trailing_stoploss or\
-            self.market.latest_candle[3] < self.fixed_stoploss or\
-            self.market.get_latest_bid() >= self.profit_target:  # check price against last calculated trailing stoploss
+        print("UPDATING LONG POSITION")
+        if self.market.get_best_bid() < self.trailing_stoploss or\
+            self.market.get_best_bid() < self.fixed_stoploss or\
+            self.market.get_best_bid() >= self.profit_target:  # check price against last calculated trailing stoploss
                 self.liquidate_position()
         # re-calculate trailing stoploss
         self.trailing_stoploss = self.calculate_trailing_stoploss()
@@ -96,7 +97,7 @@ class LongPosition(Position):
     # the trailing_stoploss will be $97
     # using low for now, but we can change this
     def calculate_trailing_stoploss(self):
-        return self.market.latest_candle[3] * self.trailing_stoploss_percent
+        return self.price * self.trailing_stoploss_percent
 
     # calculate profit target based on a percent (passed in as decimal for now)
     # if buy price was $100 and profit_target_percent = 1.03
@@ -110,7 +111,7 @@ class LongPosition(Position):
 
     def liquidate_position(self):
         """Will use this method to actually create the order that liquidates the position"""
-        open_short_position(self.market, self.amount, self.market.get_latest_bid())
+        open_short_position(self.market, self.amount, self.market.get_best_bid())
         self.is_open = False
 
 

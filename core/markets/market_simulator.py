@@ -1,6 +1,7 @@
 from core.markets.market import Market
 from core.database import ohlcv_functions
 from core.markets import position_manager
+from strategies import base_strategy
 
 long_positions = 0
 
@@ -18,7 +19,7 @@ class MarketSimulator(Market):
             self.quote_balance = self.quote_balance - quantity * price
             self.base_balance = self.base_balance + quantity
             print()
-            print("Executed buy simulation of " + str(quantity) + " " + self.base_currency + " for " + str(price + " " + self.quote_currency))
+            print("Executed buy simulation of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             print(self.quote_currency + " balance: " + str(self.quote_balance))
             print(self.base_currency + " balance: " + str(self.base_balance))
             print()
@@ -30,7 +31,7 @@ class MarketSimulator(Market):
             self.base_balance = self.base_balance - quantity
             self.quote_balance = self.quote_balance + quantity * price
             print()
-            print("Executed sell simulation of " + str(quantity) + " " + self.base_currency + " for " + str(price + " " + self.quote_currency))
+            print("Executed sell simulation of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             print(self.quote_currency + " balance: " + str(self.quote_balance))
             print(self.base_currency + " balance: " + str(self.base_balance))
             print()
@@ -90,6 +91,7 @@ class MarketSimulator(Market):
             self.latest_candle[interval] = entry
             self._do_ta_calculations(interval)
             self._tick_signals()
+            base_strategy.update_all_strategies(interval)
             print('Writing candle ' + str(entry[0]) + ' to database')
         self.historical_loaded = True
         print('Historical data has been loaded.')
@@ -98,15 +100,20 @@ class MarketSimulator(Market):
         return self.quote_balance
 
 
-def open_long_position(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent):
+def open_long_position_simulation(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent):
     """Create simulated long position"""
-    if long_positions == 0:
-        LongPositionSimulator(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent).open()
+    print("Opening simulated long position")
+    position = LongPositionSimulator(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent)
+    position.open()
+    return position
 
 
-def open_short_position(market, amount, price):
+def open_short_position_simulation(market, amount, price):
     """Create simulated short position"""
-    ShortPositionSimulator(market, amount, price).open()
+    print("Opening simulated short position")
+    position = ShortPositionSimulator(market, amount, price)
+    position.open()
+    return position
 
 
 class LongPositionSimulator(position_manager.LongPosition):
@@ -116,11 +123,23 @@ class LongPositionSimulator(position_manager.LongPosition):
 
     def liquidate_position(self):
         """Will use this method to actually create the order that liquidates the position"""
-        long_positions -= 1
-        open_short_position(self.market, self.amount, self.get_latest_bid())
+        print("Closing simulated long position")
+        open_short_position_simulation(self.market, self.amount, self.market.latest_candle['5m'][3])
+        self.is_open = False
 
     def open(self):
         self.market.limit_buy(self.amount, self.price)
+        self.is_open = True
+
+    def update(self):
+        """Use this method to trigger position to check if profit target has been met, and re-set trailiing stop loss"""
+        print("UPDATING LONG POSITION")
+        if self.market.latest_candle['5m'][3] < self.trailing_stoploss or\
+            self.market.latest_candle['5m'][3] < self.fixed_stoploss or\
+            self.market.latest_candle['5m'][3] >= self.profit_target:  # check price against last calculated trailing stoploss
+                self.liquidate_position()
+        # re-calculate trailing stoploss
+        self.trailing_stoploss = self.calculate_trailing_stoploss()
 
 
 class ShortPositionSimulator(position_manager.ShortPosition):
