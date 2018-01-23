@@ -13,7 +13,6 @@ class SmaCrossoverSignal(BaseSignalGenerator):
         self.fma = simple_moving_average.SimpleMovingAverage(self.market, interval, sma_short)
         self.sma = simple_moving_average.SimpleMovingAverage(self.market, interval, sma_long)
         self.vol_change = volume_change_monitor.VolumeChangeMonitor(self.market, interval)
-        self.market.apply_signal(self)
         self.cached_high = None
 
     def check_condition(self):

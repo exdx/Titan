@@ -1,6 +1,6 @@
 from core.markets.market import Market
 from core.database import ohlcv_functions
-from core.markets import position_manager
+from core.markets import position
 from strategies import base_strategy
 
 long_positions = 0
@@ -80,9 +80,6 @@ class MarketSimulator(Market):
             return self.latest_candle['5m'][4]
 
     def load_historical(self, interval):
-        self._jobs.put(lambda: self._load_historical(interval))
-
-    def _load_historical(self, interval):
         """Load all historical candles to database"""
         print('Getting historical candles for market...')
         data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
@@ -90,7 +87,6 @@ class MarketSimulator(Market):
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
             self.latest_candle[interval] = entry
             self._do_ta_calculations(interval)
-            self._tick_signals()
             base_strategy.update_all_strategies(interval)
             print('Writing candle ' + str(entry[0]) + ' to database')
         self.historical_loaded = True
@@ -116,7 +112,7 @@ def open_short_position_simulation(market, amount, price):
     return position
 
 
-class LongPositionSimulator(position_manager.LongPosition):
+class LongPositionSimulator(position.LongPosition):
     """Simulated long position. Overrides the functionality of creating an actual order to use the MarketSimulators balance and calculations"""
     def __init__(self, market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent):
         super().__init__(market, amount, price, fixed_stoploss, trailing_stoploss_percent, profit_target_percent)
@@ -142,7 +138,7 @@ class LongPositionSimulator(position_manager.LongPosition):
         self.trailing_stoploss = self.calculate_trailing_stoploss()
 
 
-class ShortPositionSimulator(position_manager.ShortPosition):
+class ShortPositionSimulator(position.ShortPosition):
     """Simulated short position. Overrides the functionality of creating an actual order to use the MarketSimulators balance and calculations"""
     def __init__(self, market, amount, price):
         super().__init__(market, amount, price)

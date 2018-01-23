@@ -1,57 +1,8 @@
 """Module to create, remove, and manage trades currently in play in running strategies"""
 
-from ccxt import OrderNotFound
-from multiprocessing.pool import ThreadPool
-from core.database import database
-
-
-engine = database.engine
-conn = engine.connect()
+from core.markets.order import Order
 
 positions = []
-
-
-class Order:
-    """Class that represents an order. Order executes on instantiation by a thread pool"""
-    def __init__(self, market, side, type, amount, price):
-        self.market = market
-        self.side = side
-        self.type = type
-        self.amount = amount
-        self.price = price
-        self.__order_receipt = None
-        self.execute()
-
-    def execute(self):
-        if self.type == "limit":
-            if self.side == "buy":
-                self.__order_receipt = self.market.exchange.create_limit_buy_order(self.market.analysis_pair, self.amount, self.price)
-                write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'long', self.amount, self.price)
-            elif self.side == "sell":
-                self.__order_receipt = self.market.exchange.create_limit_sell_order(self.market.analysis_pair, self.amount, self.price)
-                write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'short', self.amount, self.price)
-            else:
-                print("Invalid order side: " + self.side + ", specify 'buy' or 'sell' ")
-        elif self.type == "market":
-            print("Market orders not available")
-        else:
-            print("Invalid order type: " + self.type + ", specify 'limit' or 'market' ")
-
-    def get_id(self):
-        return self.__order_receipt.get().id
-
-    def cancel(self):
-        try:
-            self.market.exchange.cancel_order(self.get_id())
-        except OrderNotFound:
-            print("Order cannot be canceled. Has already been filled")
-
-    def get_fill_price(self):
-        order = self.market.exchange.fetchClosedOrders(symbol=self.market.analysis_pair)
-        if order is None:
-            print("Order not yet filled, cannot determine fill price")
-        else:
-            return order['price']
 
 
 class Position:
@@ -83,11 +34,13 @@ class LongPosition(Position):
 
     def update(self):
         """Use this method to trigger position to check if profit target has been met, and re-set trailiing stop loss"""
-        print("UPDATING LONG POSITION")
-        if self.market.get_best_bid() < self.trailing_stoploss or\
-            self.market.get_best_bid() < self.fixed_stoploss or\
-            self.market.get_best_bid() >= self.profit_target:  # check price against last calculated trailing stoploss
-                self.liquidate_position()
+        if not self.is_open:
+            pass
+        elif self.market.get_best_bid() < self.trailing_stoploss or \
+                self.market.get_best_bid() < self.fixed_stoploss or \
+                self.market.get_best_bid() >= self.profit_target:  # check price against last calculated trailing stoploss
+            print("Liquidating long position")
+            self.liquidate_position()
         # re-calculate trailing stoploss
         self.trailing_stoploss = self.calculate_trailing_stoploss()
 
@@ -128,11 +81,6 @@ class ShortPosition(Position):
         pass
 
 
-def update_all_positions():
-    for position in positions:
-        position.update()
-
-
 def open_long_position(market, amount, price, fixed_stoploss_percent, trailing_stoploss_percent, profit_target_percent):
     position = LongPosition(market, amount, price, fixed_stoploss_percent, trailing_stoploss_percent, profit_target_percent)
     position.open()
@@ -153,7 +101,3 @@ def calculate_drawdown():
     pass
 
 
-def write_order_to_db(exchange, pair, position, amount, price):
-    ins = database.TradingPositions.insert().values(Exchange=exchange, Pair=pair, Position=position, Amount=amount, Price=price)
-    conn.execute(ins)
-    print("Wrote open order to DB...")

@@ -55,7 +55,6 @@ class Market:
         if self.historical_loaded:
             self._jobs.put(lambda: self._pull_latest_candle(interval))
             self._jobs.put(lambda: self._do_ta_calculations(interval))
-            self._jobs.put(self._tick_signals())
 
     def load_historical(self, interval):
         """Queue loading of historical candles"""
@@ -92,18 +91,9 @@ class Market:
         for indicator in self.indicators[interval]:
             indicator.next_calculation()
 
-    def _tick_signals(self):
-        """Notify strategies of a new candle"""
-        for strategy in self.signals:
-            strategy.on_data()
-
     def apply_indicator(self, indicator):
         """Add indicator to list of indicators listening to market's candles"""
         self.indicators[indicator.interval].append(indicator)
-
-    def apply_signal(self, strategy):
-        """Add strategy to list of strategies listening to market's candles"""
-        self.signals.append(strategy)
 
     def get_exchange_login(self):
         """Put API Key and Secret into login-real.txt file on your local machine"""
