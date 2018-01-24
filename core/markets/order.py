@@ -23,10 +23,10 @@ class Order:
         if self.type == "limit":
             if self.side == "buy":
                 self.__order_receipt = self.market.exchange.create_limit_buy_order(self.market.analysis_pair, self.amount, self.price)
-                write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'long', self.amount, self.price)
+                write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'long', self.amount, self.price, "live")
             elif self.side == "sell":
                 self.__order_receipt = self.market.exchange.create_limit_sell_order(self.market.analysis_pair, self.amount, self.price)
-                write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'short', self.amount, self.price)
+                write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'short', self.amount, self.price, "live")
             else:
                 print("Invalid order side: " + self.side + ", specify 'buy' or 'sell' ")
         elif self.type == "market":
@@ -56,8 +56,8 @@ class Order:
         return self.market.exchange.fetch_order(self.get_id())['remaining']
 
 
-def write_order_to_db(exchange, pair, position, amount, price):
-    ins = database.TradingOrders.insert().values(Timestamp=get_timestamp(), Exchange=exchange, Pair=pair, Position=position, Amount=amount, Price=price)
+def write_order_to_db(exchange, pair, position, amount, price, simulated):
+    ins = database.TradingOrders.insert().values(Timestamp=get_timestamp(), Exchange=exchange, Pair=pair, Position=position, Amount=amount, Price=price, Simulated=simulated)
     conn.execute(ins)
     print("Wrote open order to DB...")
 

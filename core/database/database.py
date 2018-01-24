@@ -54,12 +54,13 @@ TAVolumeChange = Table('TAVolumeChange', metadata,
 
 TradingOrders = Table('TradingOrders', metadata,
                       Column('Timestamp', String),
-                      Column('PositionID', Integer, primary_key=True),
-                      Column('Exchange', Float),
+                      Column('OrderID', Integer, primary_key=True),
+                      Column('Exchange', String),
                       Column('Pair', String),
                       Column('Position', String),
                       Column('Amount', Float),
-                      Column('Price', Float)
+                      Column('Price', Float),
+                      Column('Simulated', String)
                       )
 
 def drop_tables():

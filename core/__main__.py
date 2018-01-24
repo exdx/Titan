@@ -8,10 +8,8 @@ def main():
 
     strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', True)
     strategy.start()
-    ticker.start_ticker(strategy.interval)
+    ticker.start_ticker("5m")
 
-    while True:
-        """Program is running"""
 
 if __name__ == '__main__':
     try:

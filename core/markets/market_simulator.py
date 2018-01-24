@@ -1,6 +1,7 @@
 from core.markets.market import Market
 from core.database import ohlcv_functions
 from core.markets import position
+from core.markets import order
 from strategies import base_strategy
 
 long_positions = 0
@@ -18,6 +19,7 @@ class MarketSimulator(Market):
         if self.quote_balance >= quantity * price:
             self.quote_balance = self.quote_balance - quantity * price
             self.base_balance = self.base_balance + quantity
+            order.write_order_to_db(self.exchange.id, self.analysis_pair, "buy", quantity, price, "simulated")
             print()
             print("Executed buy simulation of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             print(self.quote_currency + " balance: " + str(self.quote_balance))
@@ -30,6 +32,7 @@ class MarketSimulator(Market):
         if self.base_balance >= quantity:
             self.base_balance = self.base_balance - quantity
             self.quote_balance = self.quote_balance + quantity * price
+            order.write_order_to_db(self.exchange.id, self.analysis_pair, "sell", quantity, price, "simulated")
             print()
             print("Executed sell simulation of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             print(self.quote_currency + " balance: " + str(self.quote_balance))
