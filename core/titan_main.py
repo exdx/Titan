@@ -4,6 +4,7 @@ from core.markets import ticker
 from core.markets import market
 from core.markets import market_simulator
 
+
 def main():
 
     strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', True)
@@ -11,7 +12,8 @@ def main():
     ticker.start_ticker("5m")
 
 
-if __name__ == '__main__':
+
+def start():
     try:
         # wipe and recreate tables
         database.reset_db()
