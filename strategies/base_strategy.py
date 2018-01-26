@@ -33,6 +33,9 @@ class BaseStrategy:
     def start(self):
         self.market.load_historical(self.interval)
 
+    def start_simulation(self):
+
+
     def update(self):
         self.update_positions()
         buy_condition = self.buy_signal.check_condition()

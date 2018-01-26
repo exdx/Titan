@@ -12,9 +12,10 @@ def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
     """Inserts exchange candle data into table"""
     with database.lock:
         args = [exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval]
-        ins = database.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=convert_timestamp_to_date(args[2]), Open=args[3], High=args[4], Low=args[5], Close=args[6], Volume=args[7], Interval=args[8])
+        ins = database.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=convert_timestamp_to_date(args[2]), Open=args[3], High=args[4], Low=args[5], Close=args[6], Volume=args[7], Interval=args[8], TimestampRaw=args[2])
         conn.execute(ins)
         print('Adding candle with timestamp: ' + str(candle[0]))
+
 
 
 def get_latest_candle(exchange, pair, interval):
@@ -25,6 +26,13 @@ def get_latest_candle(exchange, pair, interval):
     result.close()
     return row
 
+def get_all_candles(exchange, pair, interval):
+    s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
+                                            database.OHLCV.c.Interval == interval))
+    result = conn.execute(s)
+    row = result.fetchone()
+    result.close()
+    return row
 
 def get_latest_N_candles_as_df(exchange, pair, interval, N):
     """Returns N latest candles for TA calculation purposes"""

@@ -21,6 +21,7 @@ OHLCV = Table('OHLCV', metadata,
               Column('Close', Float),
               Column('Volume', Float),
               Column('Interval', String),
+              Column('TimestampRaw', Integer)
               )
 
 TradingPairs = Table('TradingPairs', metadata,
