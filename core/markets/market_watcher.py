@@ -29,7 +29,7 @@ class MarketWatcher:
         self.latest_candle = None
         self.PairID = random.randint(1, 100)
         self.__thread.start()
-        update_list[interval].append(self)
+        pub.subscribe(self.tick, "tick" + interval)
         ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
 
 
@@ -40,11 +40,10 @@ class MarketWatcher:
         while self.__running:
             if not self._jobs.empty():
                 job = self._jobs.get()
-                job()
-                #try:
-                #    job()
-                #except Exception as e:
-                #    print(job.__name__ + " threw error:\n" + str(e))
+                try:
+                    job()
+                except Exception as e:
+                    print(job.__name__ + " threw error:\n" + str(e))
 
     def stop(self):
         """Stop listener queue"""
@@ -64,7 +63,7 @@ class MarketWatcher:
         and ticks applied strategies on historical data"""
         print('Getting historical candles for market...')
         latest_db_candle = ohlcv_functions.get_latest_candle(self.exchange.id, self.analysis_pair, self.interval)
-        data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)[-100:]
+        data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
         if latest_db_candle is None:
             for entry in data:
                 ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry)
@@ -97,12 +96,6 @@ class MarketWatcher:
 
 
 lookup_list = defaultdict(MarketWatcher)
-update_list = defaultdict(list)
-
-
-def update_all(interval):
-    for market in update_list[interval]:
-        market.tick()
 
 
 def subscribe_historical(exchange_id, base, quote, interval, callable):

@@ -71,14 +71,18 @@ TradingOrders = Table('TradingOrders', metadata,
 def drop_tables():
     print('Dropping tables...')
     metadata.drop_all(engine)
-    #TAVolumeChange.drop()
-    #TAMovingAverage.drop()
+    #TradingPairs.drop(engine)
+    #TAIdentifier.drop(engine)
+    #TAVolumeChange.drop(engine)
+    #TAMovingAverage.drop(engine)
 
-def create_tables():
+def create_tables():#
     print('Creating tables...')
     metadata.create_all(engine)
-    #TAVolumeChange.create()
-    #TAMovingAverage.create()
+    #TradingPairs.create(engine)
+    #TAIdentifier.create(engine)
+    #TAVolumeChange.create(engine)
+    #TAMovingAverage.create(engine)
 
 def reset_db():
     print('Resetting database...')

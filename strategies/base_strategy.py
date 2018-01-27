@@ -40,7 +40,7 @@ class BaseStrategy:
 
     def run_simulation(self):
         self.__jobs.put(lambda: self.market.simulate_on_historical(self.interval, self))
-        
+
     def update(self, candle):
         self.__jobs.put(lambda: self._update(candle))
 
@@ -77,11 +77,10 @@ class BaseStrategy:
         while self.__running:
             if not self.__jobs.empty():
                 job = self.__jobs.get()
-                job()
-                #try:
-                #    job()
-                #except Exception as e:
-                #    print(job.__name__ + " threw error:\n" + str(e))
+                try:
+                    job()
+                except Exception as e:
+                    print(job.__name__ + " threw error:\n" + str(e))
 
 
 class StrategySimulator(BaseStrategy):
