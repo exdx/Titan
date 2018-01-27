@@ -14,6 +14,7 @@ class MarketSimulator(Market):
         self.starting_balance = quote_currency_balance
         self.quote_balance = quote_currency_balance
         self.base_balance = 0
+        self.simulating = False
 
     def limit_buy(self, quantity, price):
         if self.quote_balance >= quantity * price:
@@ -67,7 +68,7 @@ class MarketSimulator(Market):
 
     def get_ask_price(self):
         """Get ask price for simulation"""
-        if self.historical_loaded:
+        if not self.simulating:
             """if operating on live data, use actual ask"""
             return self.exchange.fetchTicker(self.analysis_pair)['ask']
         else:
@@ -75,25 +76,23 @@ class MarketSimulator(Market):
             return self.latest_candle['5m'][4]
 
     def get_bid_price(self):
-        if self.historical_loaded:
+        if not self.simulating:
             """if operating on live data, use actual ask"""
             return self.exchange.fetchTicker(self.analysis_pair)['bid']
         else:
             """if operating on historical data, use close"""
             return self.latest_candle['5m'][4]
 
-    def load_historical(self, interval):
+    def simulate_on_historical(self, interval, strategy):
         """Load all historical candles to database"""
-        print('Getting historical candles for market...')
-        data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
+        print('Simulating candles for market...')
+        data = self.get_all_historical_candles(interval)
+        self.simulating = True
         for entry in data:
-            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
             self.latest_candle[interval] = entry
-            self._do_ta_calculations(interval)
-            base_strategy.update_all_strategies(interval)
-            print('Writing candle ' + str(entry[0]) + ' to database')
-        self.historical_loaded = True
-        print('Historical data has been loaded.')
+            strategy._update(entry)
+        print('Simulation on historical data done')
+        self.simulating = False
 
     def get_wallet_balance(self):
         return self.quote_balance

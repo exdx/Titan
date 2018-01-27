@@ -7,7 +7,6 @@ positions = []
 
 class Position:
     def __init__(self, market, amount, price):
-        positions.append(self)
         self.market = market
         self.amount = amount
         self.price = price
@@ -29,7 +28,7 @@ class LongPosition(Position):
         self.initial_order = None
 
     def open(self):
-        self.initial_order = Order(self.market, "buy", "limit", self.amount, self.price)
+        self.initial_order = self.market.limit_buy(self.amount, self.price)
         self.is_open = True
 
     def update(self):
@@ -64,7 +63,7 @@ class LongPosition(Position):
 
     def liquidate_position(self):
         """Will use this method to actually create the order that liquidates the position"""
-        open_short_position(self.market, self.amount, self.market.get_best_bid())
+        self.market.limit_buy(self.amount, self.market.get_best_bid())
         self.is_open = False
 
 

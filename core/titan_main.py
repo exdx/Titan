@@ -7,18 +7,18 @@ from core.markets import market_simulator
 
 def main():
 
-    strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', True)
+    strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', True, sim_balance=10)
     strategy.start()
-    ticker.start_ticker("5m")
 
-
+    while True:
+        pass
 
 def start():
     try:
         # wipe and recreate tables
         database.reset_db()
 
-        # run main
+      # run main
         main()
 
     except Exception as e:
@@ -27,4 +27,5 @@ def start():
     finally:
         database.engine.dispose()
 
-
+if __name__ == "__main__":
+    start()
