@@ -37,20 +37,24 @@ TAIdentifier = Table('TAIdentifier', metadata,
 
 TAMovingAverage = Table('TAMovingAverage', metadata,
                          Column('AverageID', Integer, primary_key=True),
+                         Column('Exchange', String),
                          Column('Pair', String),
                          Column('Time', String),
                          Column('Close', Float),
                          Column('Interval', Integer),
                          Column('MovingAverage', Float),
+                         Column('TimestampRaw', Integer)
                          )
 
 TAVolumeChange = Table('TAVolumeChange', metadata,
                          Column('VolumeID', Integer, primary_key=True),
+                         Column('Exchange', String),
                          Column('Pair', String),
                          Column('Time', String),
                          Column('Volume', Float),
                          Column('Interval', Integer),
                          Column('PercentVolumeChange', Float),
+                         Column('TimestampRaw', Integer)
                          )
 
 TradingOrders = Table('TradingOrders', metadata,
@@ -67,10 +71,14 @@ TradingOrders = Table('TradingOrders', metadata,
 def drop_tables():
     print('Dropping tables...')
     metadata.drop_all(engine)
+    #TAVolumeChange.drop()
+    #TAMovingAverage.drop()
 
 def create_tables():
     print('Creating tables...')
     metadata.create_all(engine)
+    #TAVolumeChange.create()
+    #TAMovingAverage.create()
 
 def reset_db():
     print('Resetting database...')

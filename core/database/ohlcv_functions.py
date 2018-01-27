@@ -2,6 +2,7 @@ from core.database import database
 from sqlalchemy.sql import select, and_
 import pandas as pd
 import datetime
+from sqlalchemy.exc import IntegrityError
 
 
 engine = database.engine
@@ -30,9 +31,17 @@ def get_all_candles(exchange, pair, interval):
     s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
                                             database.OHLCV.c.Interval == interval))
     result = conn.execute(s)
-    row = result.fetchone()
+    ret = result.fetchall()
     result.close()
-    return row
+    return ret
+
+def get_latest_N_candles(exchange, pair, interval, N):
+    s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
+                                            database.OHLCV.c.Interval == interval)).limit(N)
+    result = conn.execute(s)
+    ret = result.fetchall()
+    result.close()
+    return ret
 
 def get_latest_N_candles_as_df(exchange, pair, interval, N):
     """Returns N latest candles for TA calculation purposes"""
@@ -42,6 +51,14 @@ def get_latest_N_candles_as_df(exchange, pair, interval, N):
     df.columns = result.keys()
     result.close()
     return df
+
+def get_latest_ta_value(table, exchange, pair, interval):
+    s = select([table]).where(and_(table.c.Exchange == exchange, table.c.Pair == pair,
+                                   table.c.Interval == interval)).limit(1)
+    result = conn.execute(s)
+    ret = result.fetchone()
+    result.close()
+    return ret
 
 def get_historical_ta_data_as_df():
     s = select([database.TAMovingAverage]).order_by(database.TAMovingAverage.c.TA_Det_ID.asc())
@@ -68,8 +85,11 @@ def has_candle(candle_data, exchange, pair, interval):
 
 def write_trade_pairs_to_db(PairID, Base, Quote):
     with database.lock:
-        ins = database.TradingPairs.insert().values(PairID=PairID, BaseCurrency=Base, QuoteCurrency=Quote)
-        conn.execute(ins)
+        try:
+            ins = database.TradingPairs.insert().values(PairID=PairID, BaseCurrency=Base, QuoteCurrency=Quote)
+            conn.execute(ins)
+        except IntegrityError:
+            print("Pair already logged in DB")
 
 
 def convert_timestamp_to_date(timestamp):

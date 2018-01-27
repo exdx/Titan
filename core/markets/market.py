@@ -2,10 +2,10 @@ import ccxt
 import time
 import random
 import os
+from core.markets import order
 from collections import defaultdict
 from core.database import ohlcv_functions
-from threading import Thread
-from queue import Queue
+
 from ccxt import BaseError
 
 markets = []
@@ -22,10 +22,6 @@ class Market:
         self.base_currency = base_currency
         self.quote_currency = quote_currency
         self.analysis_pair = '{}/{}'.format(self.base_currency, self.quote_currency)
-        self.__thread = Thread(target=self.run)  # create thread for listener
-        self._jobs = Queue()  # create job queue
-        self.__running = True
-        self.__thread.start()
         self.indicators = defaultdict(list)
         self.signals = []
         self.latest_candle = defaultdict(list)
@@ -33,27 +29,21 @@ class Market:
         ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
         markets.append(self)
 
-    def run(self):
-        """Start listener queue waiting for ticks"""
-        self.__running = True
-        while self.__running:
-            if not self._jobs.empty():
-                job = self._jobs.get()
-                try:
-                    print("Executing job: " + job.__name__ + " on " + self.exchange.id + " " + self.analysis_pair)
-                    job()
-                except Exception as e:
-                    print(job.__name__ + " threw error:\n" + str(e))
-
-    def stop(self):
-        """Stop listener queue"""
-        self.__running = False
-
-
-    def _do_ta_calculations(self, interval):
+    def update(self, interval, candle):
         """Notify all indicators subscribed to the interval of a new candle"""
+        self.latest_candle[interval] = candle
+        self.do_ta_calculations(interval, candle)
+
+    def do_ta_calculations(self, interval, candle):
+        """update TA indicators applied to market"""
         for indicator in self.indicators[interval]:
-            indicator.next_calculation()
+            indicator.next_calculation(candle)
+
+    def do_historical_ta_calculations(self, interval):
+        data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
+        for indicator in self.indicators[interval]:
+            for candle in data:
+                indicator.next_calculation(candle)
 
     def apply_indicator(self, indicator):
         """Add indicator to list of indicators listening to market's candles"""
@@ -69,6 +59,24 @@ class Market:
             self.exchange.secret_key = data[1]
         except:
             print("Invalid login file")
+
+    def limit_buy(self, quantity, price):
+        try:
+            print()
+            print("Executed buy of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
+            print()
+            return order.Order(self, "buy", "limit", quantity, price)
+        except BaseError:
+            print("Error creating buy order")
+
+    def limit_sell(self, quantity, price):
+        try:
+            print()
+            print("Executed sell of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
+            print()
+            return order.Order(self, "sell", "limit", quantity, price)
+        except BaseError:
+            print("Error creating sell order")
 
     def get_wallet_balance(self):
         """Get wallet balance for quote currency"""
@@ -86,6 +94,9 @@ class Market:
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
 
+    def get_all_historical_candles(self, interval):
+        data = ohlcv_functions.get_all_candles(self.exchange.id, self.analysis_pair, interval)
+        return [[entry[10], entry[4], entry[5], entry[6], entry[7], entry[8]] for entry in data]
 
 def update_all_candles(interval):
     """Tell all instantiated markets to pull their latest candle"""

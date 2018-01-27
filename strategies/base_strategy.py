@@ -1,42 +1,52 @@
-from core.markets import ticker
+from core.markets import market_watcher
 from core.markets import market_simulator
 from core.markets import market
 from core.markets import position
 from collections import defaultdict
+from threading import Thread
+from queue import Queue
 
 strategies = defaultdict(list)
 
 
-def update_all_strategies(interval):
-    for strategy in strategies[interval]:
-        strategy.update()
-
-
 class BaseStrategy:
 
-    def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated):
+    def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated, simulated_quote_balance=0):
         self.market = None
-        if is_simulated:
-            self.market = market_simulator.MarketSimulator(exchange, base_currency, quote_currency, 10)
-        else:
-            self.market = market.Market(exchange, base_currency, quote_currency)
+        self.__thread = Thread(target=self.__run)
+        self.__jobs = Queue()  # create job queue
+        self.__running = False
+        self.positions = []
         self.interval = interval
+        self.is_simulated = is_simulated
+        self.name = None
         self.order_quantity = None
         self.position_limit = None
         self.buy_signal = None
         self.profit_target_percent = None
         self.fixed_stoploss_percent = None
         self.trailing_stoploss_percent = None
-        self.positions = []
+        if self.is_simulated:
+            self.market = market_simulator.MarketSimulator(exchange, base_currency, quote_currency, simulated_quote_balance)
+        else:
+            self.market = market.Market(exchange, base_currency, quote_currency)
         strategies[interval].append(self)
 
     def start(self):
-        self.market.load_historical(self.interval)
+        self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.update))
+        if self.is_simulated:
+            market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.run_simulation)
+        self.__thread.start()
 
-    def start_simulation(self):
+    def run_simulation(self):
+        self.__jobs.put(lambda: self.market.simulate_on_historical(self.interval, self))
+        
+    def update(self, candle):
+        self.__jobs.put(lambda: self._update(candle))
 
-
-    def update(self):
+    def _update(self, candle):
+        """Run updates on all markets/indicators/signal generators running in strategy"""
+        self.market.update(self.interval, candle)
         self.update_positions()
         buy_condition = self.buy_signal.check_condition()
         if self.get_open_position_count() >= self.position_limit:
@@ -60,6 +70,18 @@ class BaseStrategy:
                                                           self.fixed_stoploss_percent,
                                                           self.trailing_stoploss_percent,
                                                           self.profit_target_percent))
+
+    def __run(self):
+        """Start listener queue waiting for ticks"""
+        self.__running = True
+        while self.__running:
+            if not self.__jobs.empty():
+                job = self.__jobs.get()
+                job()
+                #try:
+                #    job()
+                #except Exception as e:
+                #    print(job.__name__ + " threw error:\n" + str(e))
 
 
 class StrategySimulator(BaseStrategy):
