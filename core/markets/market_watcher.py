@@ -91,7 +91,7 @@ class MarketWatcher:
                 time.sleep(self.exchange.rateLimit * 2 / 1000)
                 latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, latest_data)
-        except RequestTimeout:
+        except BaseError:
             print("Timeout pulling latest candle, trying again")
             self._pull_latest_candle(interval)
         self.latest_candle = latest_data
