@@ -1,6 +1,7 @@
 from threading import Thread
+from pubsub import pub
 from core.markets import market
-from core.markets import position
+from core.markets import market_watcher
 from strategies import base_strategy
 import time
 
@@ -8,7 +9,7 @@ tickers = {}
 
 
 def start_ticker(interval):
-    if tickers.get(interval) is None:
+    if interval not in tickers:
         tickers[interval] = Thread(target=__start_ticker, args=(interval,)).start()
 
 
@@ -18,10 +19,7 @@ def __start_ticker(interval):
     while True:
         """Running this 'ticker' from the main loop to trigger listeners to pull candles every 5 minutes"""
         print("Live Tick: {}".format(str(live_tick_count)))
-        market.update_all_candles(interval)
-        base_strategy.update_all_strategies(interval)
-        print('Pulled 5m candle #{}. Waiting for next live candle...'.format(
-            str(live_tick_count)))
+        pub.sendMessage("tick" + interval)
         live_tick_count += 1
         time.sleep(__convert_interval_to_int(interval))  # wait 5 minutes
 

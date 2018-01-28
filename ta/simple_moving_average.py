@@ -15,24 +15,24 @@ class SimpleMovingAverage(BaseIndicator):
         self.timestamp = None
         self.value = None
 
-    def next_calculation(self):
+    def next_calculation(self, candle):
         """Get latest N candles from market, do calculation, write results to db"""
-        self.update_dataset(self.market.latest_candle[self.interval])
+        self.update_dataset(candle)
         if len(self.dataset) == self.periods:
-            self.do_calculation()
-            self.write_ta_statistic_to_db()
+            self.do_calculation(candle)
+            self.write_ta_statistic_to_db(candle)
             print("Calculated new moving average: " + str(self.value))
 
-    def do_calculation(self):
-        data = list(candle[4] for candle in self.dataset)
+    def do_calculation(self, candle):
+        data = list(c[4] for c in self.dataset)
         self.value = round(sma(data, self.periods)[-1], 6)
-        self.close = self.market.latest_candle[self.interval][4]
-        self.timestamp = ohlcv_functions.convert_timestamp_to_date(self.market.latest_candle[self.interval][0])
+        self.close = candle[4]
+        self.timestamp = ohlcv_functions.convert_timestamp_to_date(candle[0])
 
-    def write_ta_statistic_to_db(self):
+    def write_ta_statistic_to_db(self, candle):
         """Inserts average into table"""
         with database.lock:
-                ins = database.TAMovingAverage.insert().values(Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, Interval=self.periods, MovingAverage=self.value)
+                ins = database.TAMovingAverage.insert().values(Exchange=self.market.exchange.id, Pair=self.market.analysis_pair, Time=self.timestamp, Close=self.close, Interval=self.periods, MovingAverage=self.value, TimestampRaw=candle[0])
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 
