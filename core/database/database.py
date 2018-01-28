@@ -21,6 +21,7 @@ OHLCV = Table('OHLCV', metadata,
               Column('Close', Float),
               Column('Volume', Float),
               Column('Interval', String),
+              Column('TimestampRaw', Integer)
               )
 
 TradingPairs = Table('TradingPairs', metadata,
@@ -36,20 +37,24 @@ TAIdentifier = Table('TAIdentifier', metadata,
 
 TAMovingAverage = Table('TAMovingAverage', metadata,
                          Column('AverageID', Integer, primary_key=True),
+                         Column('Exchange', String),
                          Column('Pair', String),
                          Column('Time', String),
                          Column('Close', Float),
                          Column('Interval', Integer),
                          Column('MovingAverage', Float),
+                         Column('TimestampRaw', Integer)
                          )
 
 TAVolumeChange = Table('TAVolumeChange', metadata,
                          Column('VolumeID', Integer, primary_key=True),
+                         Column('Exchange', String),
                          Column('Pair', String),
                          Column('Time', String),
                          Column('Volume', Float),
                          Column('Interval', Integer),
                          Column('PercentVolumeChange', Float),
+                         Column('TimestampRaw', Integer)
                          )
 
 TradingOrders = Table('TradingOrders', metadata,
@@ -65,11 +70,19 @@ TradingOrders = Table('TradingOrders', metadata,
 
 def drop_tables():
     print('Dropping tables...')
-    metadata.drop_all(engine)
+    #metadata.drop_all(engine)
+    TradingPairs.drop(engine)
+    TAIdentifier.drop(engine)
+    TAVolumeChange.drop(engine)
+    TAMovingAverage.drop(engine)
 
-def create_tables():
+def create_tables():#
     print('Creating tables...')
-    metadata.create_all(engine)
+    #metadata.create_all(engine)
+    TradingPairs.create(engine)
+    TAIdentifier.create(engine)
+    TAVolumeChange.create(engine)
+    TAMovingAverage.create(engine)
 
 def reset_db():
     print('Resetting database...')

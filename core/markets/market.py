@@ -2,10 +2,10 @@ import ccxt
 import time
 import random
 import os
+from core.markets import order
 from collections import defaultdict
 from core.database import ohlcv_functions
-from threading import Thread
-from queue import Queue
+
 from ccxt import BaseError
 
 markets = []
@@ -22,11 +22,6 @@ class Market:
         self.base_currency = base_currency
         self.quote_currency = quote_currency
         self.analysis_pair = '{}/{}'.format(self.base_currency, self.quote_currency)
-        self.__thread = Thread(target=self.run)  # create thread for listener
-        self._jobs = Queue()  # create job queue
-        self.__running = True
-        self.__thread.start()
-        self.historical_loaded = False
         self.indicators = defaultdict(list)
         self.signals = []
         self.latest_candle = defaultdict(list)
@@ -34,62 +29,24 @@ class Market:
         ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
         markets.append(self)
 
-    def run(self):
-        """Start listener queue waiting for ticks"""
-        self.__running = True
-        while self.__running:
-            if not self._jobs.empty():
-                job = self._jobs.get()
-                try:
-                    print("Executing job: " + job.__name__ + " on " + self.exchange.id + " " + self.analysis_pair)
-                    job()
-                except Exception as e:
-                    print(job.__name__ + " threw error:\n" + str(e))
-
-    def stop(self):
-        """Stop listener queue"""
-        self.__running = False
-
-    def tick(self, interval):
-        """Initiate pull of latest candle, ta calculations, and notify strategies"""
-        if self.historical_loaded:
-            self._jobs.put(lambda: self._pull_latest_candle(interval))
-            self._jobs.put(lambda: self._do_ta_calculations(interval))
-
-    def load_historical(self, interval):
-        """Queue loading of historical candles"""
-        self._jobs.put(lambda: self._load_historical(interval))
-
-    def _load_historical(self, interval):
-        """Load all historical candles to database
-        This method overrides the load historical of the base class as it is a blocking method (not added to thread queue)
-        and ticks applied strategies on historical data"""
-        print('Getting historical candles for market...')
-        data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
-        for entry in data:
-            ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, entry)
-            self.latest_candle[interval] = entry
-            self._do_ta_calculations(interval)
-            print('Writing candle ' + str(entry[0]) + ' to database')
-        self.historical_loaded = True
-        print('Historical data has been loaded.')
-
-    def _pull_latest_candle(self, interval):
-        """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
-        print("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
-        latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
-        while latest_data == self.latest_candle[interval]:
-            print('Candle already contained in DB, retrying...')
-            time.sleep(self.exchange.rateLimit * 2 / 1000)
-            latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
-        ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval,
-                                                     latest_data)
-        self.latest_candle[interval] = latest_data
-
-    def _do_ta_calculations(self, interval):
+    def update(self, interval, candle):
         """Notify all indicators subscribed to the interval of a new candle"""
+        self.latest_candle[interval] = candle
+        self.do_ta_calculations(interval, candle)
+
+    def do_ta_calculations(self, interval, candle):
+        """update TA indicators applied to market"""
         for indicator in self.indicators[interval]:
-            indicator.next_calculation()
+            indicator.next_calculation(candle)
+
+    def do_historical_ta_calculations(self, interval, candle_limit=None):
+        if candle_limit is None:
+            data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
+        else:
+            data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-candle_limit:]
+        for indicator in self.indicators[interval]:
+            for candle in data:
+                indicator.next_calculation(candle)
 
     def apply_indicator(self, indicator):
         """Add indicator to list of indicators listening to market's candles"""
@@ -106,6 +63,24 @@ class Market:
         except:
             print("Invalid login file")
 
+    def limit_buy(self, quantity, price):
+        try:
+            print()
+            print("Executed buy of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
+            print()
+            return order.Order(self, "buy", "limit", quantity, price)
+        except BaseError:
+            print("Error creating buy order")
+
+    def limit_sell(self, quantity, price):
+        try:
+            print()
+            print("Executed sell of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
+            print()
+            return order.Order(self, "sell", "limit", quantity, price)
+        except BaseError:
+            print("Error creating sell order")
+
     def get_wallet_balance(self):
         """Get wallet balance for quote currency"""
         try:
@@ -121,6 +96,16 @@ class Market:
     def get_best_ask(self):
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
+
+    # this method slows everything down big time
+    # looking for solutions (a 5000 entry query should not take multiple seconds to iterate)
+    # https://stackoverflow.com/questions/9402033/python-is-slow-when-iterating-over-a-large-list
+    def get_historical_candles(self, interval, candle_limit=None):
+        if candle_limit is None:
+            data = ohlcv_functions.get_all_candles(self.exchange.id, self.analysis_pair, interval)
+        else:
+            data = ohlcv_functions.get_latest_N_candles(self.exchange.id, self.analysis_pair, interval, candle_limit)
+        return [[entry[10], entry[4], entry[5], entry[6], entry[7], entry[8]] for entry in data]
 
 
 def update_all_candles(interval):
