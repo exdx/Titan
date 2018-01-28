@@ -1,15 +1,18 @@
 from core.database import database
 from strategies import poc_strategy
 from core.markets import ticker
-from core.markets import market
-from core.markets import market_simulator
+import json
+import titan_app
 
 
-def main():
+def main(u):
+    user_input = json.loads(u)
+    #strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', True)
+    strategy = poc_strategy.PocStrategy(user_input[3], user_input[0], user_input[1], user_input[2], True) # if test strategy button clicked
+    #strategy = poc_strategy.PocStrategy(user_input[3], user_input[0], user_input[1], user_input[2],False )  if real strategy button clicked
 
-    strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', True)
     strategy.start()
-    ticker.start_ticker("5m")
+    ticker.start_ticker(user_input[3])
 
 
 

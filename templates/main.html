@@ -6,12 +6,47 @@
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
 </head>
 <body>
+    <div class ="toolbar">
+        <ul>
+        <li style="float:right"><a href="{{ url_for('mainpage') }}">home</a></li>
+        <li style="float:right"><a href="{{ url_for('aboutpage') }}">about</a></li>
+        <li style="float:right"><a href="{{ url_for('contactpage') }}">contact</a></li>
+        <li style="float:right"><a href="{{ url_for('githubpage') }}">github</a></li>
+        </ul>
+    </div>
     <div class ="header">
         <h1>Titan: Python-Based Cryptocurrency Trading Framework</h1>
     </div>
     <br><br>
-    <form action="/forward" method="get">
-    <button name="forward" type="submit">Forward</button>
+
+    <div class ="intro">
+        <h3>Introduction</h3>
+        <p>Titan is a totally free automated cryptocurrency trading system for traders of all skill levels. Built on top of the ccxt API library, it works out of the box with any exchange.</p>
+        <p>We believe in decentralizing trading strategies and providing everyone access to building advanced crypto portfolios. The future of algorithmic trading is here.</p>
+        <p>Give it a whirl with a simulation strategy, no login required! </p>
+    </div>
+
+    <br><br><br>
+    <div class ="Trading Settings">
+        <h3>Trading Platform</h3>
+        <form method="POST">
+            Exchange:<br>
+            <input type="text" name="exchange"><br>
+            Base Currency:<br>
+            <input type="text" name="basecurrency"><br>
+            Quote Currency:<br>
+            <input type="text" name="quotecurrency"><br>
+            Candle Interval:<br>
+            <input type="text" name="candleinterval"><br><br>
+        </form>
+    </div>
+
+    <br><br>
+
+
+    <form action="/forward" method="GET">
+    <button name="forward_simulation" type="submit">Start Simulation!</button>
+    <button name="forward_live" type="submit">Start Live Trading!</button>
     </form>
     <br><br>
 
