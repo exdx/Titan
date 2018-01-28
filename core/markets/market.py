@@ -39,8 +39,11 @@ class Market:
         for indicator in self.indicators[interval]:
             indicator.next_calculation(candle)
 
-    def do_historical_ta_calculations(self, interval):
-        data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
+    def do_historical_ta_calculations(self, interval, candle_limit=None):
+        if candle_limit is None:
+            data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
+        else:
+            data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-candle_limit:]
         for indicator in self.indicators[interval]:
             for candle in data:
                 indicator.next_calculation(candle)
@@ -94,9 +97,13 @@ class Market:
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
 
-    def get_all_historical_candles(self, interval):
-        data = ohlcv_functions.get_all_candles(self.exchange.id, self.analysis_pair, interval)
+    def get_historical_candles(self, interval, candle_limit=None):
+        if candle_limit is None:
+            data = ohlcv_functions.get_all_candles(self.exchange.id, self.analysis_pair, interval)
+        else:
+            data = ohlcv_functions.get_latest_N_candles(self.exchange.id, self.analysis_pair, interval, candle_limit)
         return [[entry[10], entry[4], entry[5], entry[6], entry[7], entry[8]] for entry in data]
+
 
 def update_all_candles(interval):
     """Tell all instantiated markets to pull their latest candle"""

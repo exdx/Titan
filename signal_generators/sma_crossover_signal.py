@@ -15,7 +15,7 @@ class SmaCrossoverSignal(BaseSignalGenerator):
         self.vol_change = volume_change_monitor.VolumeChangeMonitor(self.market, interval)
         self.cached_high = None
 
-    def check_condition(self):
+    def check_condition(self, new_candle):
         """will run every time a new candle is pulled"""
         print("GETTING SMA CROSSOVER SIGNAL")
         if (self.sma.value is not None) & (self.fma.value is not None) & (self.vol_change.value is not None):
@@ -29,8 +29,8 @@ class SmaCrossoverSignal(BaseSignalGenerator):
                     print("FMA has gone below SMA, forgetting cached high")
                     self.cached_high = None
                     return False
-                if self.market.latest_candle[self.interval][2] > self.cached_high: # open a trade if the latest high is greater than the cached high
-                    print("Current high of " + str(self.market.latest_candle[self.interval][2]) + " has exceeded cached high of " + str(self.cached_high) + ", buy signal generated")
+                if new_candle[2] > self.cached_high: # open a trade if the latest high is greater than the cached high
+                    print("Current high of " + str(new_candle[2]) + " has exceeded cached high of " + str(self.cached_high) + ", buy signal generated")
                     self.cached_high = None
                     return True
                 else:
@@ -40,8 +40,8 @@ class SmaCrossoverSignal(BaseSignalGenerator):
             elif self.cached_high is None and\
                     self.fma.value > self.sma.value and\
                     self.vol_change.value > 5:
-                print("FMA has crossed SMA, caching current high of " + str(self.market.latest_candle[self.interval][2]))
-                self.cached_high = self.market.latest_candle[self.interval][2]
+                print("FMA has crossed SMA, caching current high of " + str(new_candle[2]))
+                self.cached_high = new_candle[2]
                 return False
             else:
                 return False

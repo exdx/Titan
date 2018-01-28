@@ -9,7 +9,9 @@ import ccxt
 import random
 import time
 from pubsub import pub
+from threading import Lock
 
+lock = Lock()
 
 class MarketWatcher:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
@@ -61,21 +63,22 @@ class MarketWatcher:
     def __sync_historical(self):
         """Load all missing historical candles to database
         and ticks applied strategies on historical data"""
-        print('Getting historical candles for market...')
+        print('Syncing market candles with DB...')
         latest_db_candle = ohlcv_functions.get_latest_candle(self.exchange.id, self.analysis_pair, self.interval)
         data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
         if latest_db_candle is None:
+            print("No historical data for market, adding all available OHLCV data")
             for entry in data:
                 ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry)
                 print('Writing candle ' + str(entry[0]) + ' to database')
         else:
             for entry in data:
-                if not latest_db_candle[10] > entry[0]:
+                if not latest_db_candle[10] >= entry[0]:
                     ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry)
-                    print('Writing candle ' + str(entry[0]) + ' to database')
+                    print('Writing missing candle ' + str(entry[0]) + ' to database')
         self.historical_synced = True
         pub.sendMessage(self.topic + "historical")
-        print('Historical data has been loaded.')
+        print('Market data has been synced.')
 
     def _pull_latest_candle(self, interval):
         """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
@@ -99,8 +102,10 @@ lookup_list = defaultdict(MarketWatcher)
 
 
 def subscribe_historical(exchange_id, base, quote, interval, callable):
+    """Subscribe to a notification that is sent when historical data is loaded for the market given"""
     topic = str(exchange_id + base + "/" + quote + interval + "historical")
     pub.subscribe(callable, topic)
+
 
 def subscribe(exchange_id, base, quote, interval, callable):
     """
@@ -112,7 +117,8 @@ def subscribe(exchange_id, base, quote, interval, callable):
     :param callable: method to recieve new candle (must take candle as a param)
     :return: none
     """
-    topic = str(exchange_id + base + "/" + quote + interval)
-    pub.subscribe(callable, topic)
-    if topic not in lookup_list:
-        lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval)
+    with lock:
+        topic = str(exchange_id + base + "/" + quote + interval)
+        pub.subscribe(callable, topic)
+        if topic not in lookup_list:
+            lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval)

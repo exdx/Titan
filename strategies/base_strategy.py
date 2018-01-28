@@ -33,33 +33,54 @@ class BaseStrategy:
         strategies[interval].append(self)
 
     def start(self):
-        self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.update))
+        self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update))
         if self.is_simulated:
-            market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.run_simulation)
+            market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__run_simulation)
+        else:
+            market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__warmup)
         self.__thread.start()
 
-    def run_simulation(self):
-        self.__jobs.put(lambda: self.market.simulate_on_historical(self.interval, self))
+    def __warmup(self, periods=None):
+        def warmup(periods):
+            if periods is None:
+                historical_data = self.market.get_historical_candles(self.interval)
+            else:
+                historical_data = self.market.get_historical_candles(self.interval, periods)
+            for candle in historical_data:
+                self.market.update(self.interval, candle)
+        self.__jobs.put(warmup(periods))
 
-    def update(self, candle):
-        self.__jobs.put(lambda: self._update(candle))
+    def __run_simulation(self, candle_set=None):
+        """Load all historical candles to database"""
+        def run_simulation(candle_set):
+            print('Simulating strategy for market...')
+            if candle_set is None:
+                candle_set = self.market.get_historical_candles(self.interval, 1000)
+            self.simulating = True
+            for entry in candle_set:
+                self.__update(entry)
+            print('Simulation on historical data done')
+            self.simulating = False
+        self.__jobs.put(lambda: run_simulation(candle_set))
 
-    def _update(self, candle):
+    def __update(self, candle):
         """Run updates on all markets/indicators/signal generators running in strategy"""
-        self.market.update(self.interval, candle)
-        self.update_positions()
-        buy_condition = self.buy_signal.check_condition()
-        if self.get_open_position_count() >= self.position_limit:
-            pass
-        elif buy_condition:
-            self.long()
+        def update(candle):
+            self.market.update(self.interval, candle)
+            self.__update_positions()
+            buy_condition = self.buy_signal.check_condition(candle)
+            if self.get_open_position_count() >= self.position_limit:
+                pass
+            elif buy_condition:
+                self.long()
+        self.__jobs.put(lambda: update(candle))
 
     def get_open_position_count(self):
         count = len([p for p in self.positions if p.is_open])
         print(str(count) + " long positions open")
         return count
 
-    def update_positions(self):
+    def __update_positions(self):
         for p in self.positions:
             if p.is_open:
                 p.update()

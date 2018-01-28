@@ -3,8 +3,9 @@ from sqlalchemy.sql import select, and_
 import pandas as pd
 import datetime
 from sqlalchemy.exc import IntegrityError
+from threading import Lock
 
-
+thread_lock = Lock()
 engine = database.engine
 conn = engine.connect()
 
@@ -21,27 +22,29 @@ def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
 
 def get_latest_candle(exchange, pair, interval):
     """Returns only latest candle if it exists, otherwise returns 0"""
-    s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair, database.OHLCV.c.Interval == interval)).order_by(database.OHLCV.c.ID.desc()).limit(1)
+    s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair, database.OHLCV.c.Interval == interval)).order_by(database.OHLCV.c.TimestampRaw.desc()).limit(1)
     result = conn.execute(s)
     row = result.fetchone()
     result.close()
     return row
 
 def get_all_candles(exchange, pair, interval):
-    s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
-                                            database.OHLCV.c.Interval == interval))
-    result = conn.execute(s)
-    ret = result.fetchall()
-    result.close()
-    return ret
+    with thread_lock:
+        s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
+                                                database.OHLCV.c.Interval == interval))
+        result = conn.execute(s)
+        ret = result.fetchall()
+        result.close()
+        return list(ret)
 
 def get_latest_N_candles(exchange, pair, interval, N):
-    s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
+    with thread_lock:
+        s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
                                             database.OHLCV.c.Interval == interval)).limit(N)
-    result = conn.execute(s)
-    ret = result.fetchall()
-    result.close()
-    return ret
+        result = conn.execute(s)
+        ret = result.fetchall()
+        result.close()
+        return list(ret)
 
 def get_latest_N_candles_as_df(exchange, pair, interval, N):
     """Returns N latest candles for TA calculation purposes"""

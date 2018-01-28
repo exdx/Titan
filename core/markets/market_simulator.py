@@ -83,17 +83,6 @@ class MarketSimulator(Market):
             """if operating on historical data, use close"""
             return self.latest_candle['5m'][4]
 
-    def simulate_on_historical(self, interval, strategy):
-        """Load all historical candles to database"""
-        print('Simulating candles for market...')
-        data = self.get_all_historical_candles(interval)
-        self.simulating = True
-        for entry in data:
-            self.latest_candle[interval] = entry
-            strategy._update(entry)
-        print('Simulation on historical data done')
-        self.simulating = False
-
     def get_wallet_balance(self):
         return self.quote_balance
 
