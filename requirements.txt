@@ -17,7 +17,7 @@ Flask==0.12.2
 Flask-Babel==0.11.2
 Flask-Compress==1.4.0
 Flask-Table==0.5.0
-flask-debugtoolbar=0.10.1
+flask-debugtoolbar==0.10.1
 idna==2.6
 ipython-genutils==0.2.0
 itsdangerous==0.24
