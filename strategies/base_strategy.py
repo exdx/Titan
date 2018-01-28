@@ -59,7 +59,6 @@ class BaseStrategy:
             self.simulating = True
             for entry in candle_set:
                 self.__update(entry)
-            print('Simulation on historical data done')
             self.simulating = False
         self.__jobs.put(lambda: run_simulation(candle_set))
 
