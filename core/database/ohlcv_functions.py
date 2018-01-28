@@ -40,9 +40,9 @@ def get_all_candles(exchange, pair, interval):
 def get_latest_N_candles(exchange, pair, interval, N):
     with database.lock:
         s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
-                                            database.OHLCV.c.Interval == interval)).limit(N)
+                                            database.OHLCV.c.Interval == interval))
         result = conn.execute(s)
-        ret = result.fetchall()
+        ret = result.fetchmany(N)
         result.close()
         return list(ret)
 

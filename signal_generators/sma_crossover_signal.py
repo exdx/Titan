@@ -5,11 +5,9 @@ from signal_generators.base_signal_generator import BaseSignalGenerator
 
 
 class SmaCrossoverSignal(BaseSignalGenerator):
-    def __init__(self, market, sma_short, sma_long, interval):
+    def __init__(self, market, interval, sma_short, sma_long):
         """here is where you determine your values to keep track of, etc"""
-        super().__init__()
-        self.interval = interval
-        self.market = market
+        super().__init__(market, interval)
         self.fma = simple_moving_average.SimpleMovingAverage(self.market, interval, sma_short)
         self.sma = simple_moving_average.SimpleMovingAverage(self.market, interval, sma_long)
         self.vol_change = volume_change_monitor.VolumeChangeMonitor(self.market, interval)

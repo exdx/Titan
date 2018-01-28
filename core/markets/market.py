@@ -97,6 +97,9 @@ class Market:
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
 
+    # this method slows everything down big time
+    # looking for solutions (a 5000 entry query should not take multiple seconds to iterate)
+    # https://stackoverflow.com/questions/9402033/python-is-slow-when-iterating-over-a-large-list
     def get_historical_candles(self, interval, candle_limit=None):
         if candle_limit is None:
             data = ohlcv_functions.get_all_candles(self.exchange.id, self.analysis_pair, interval)
