@@ -1,11 +1,10 @@
 from strategies.base_strategy import BaseStrategy
-from strategies.base_strategy import StrategySimulator
 from signal_generators import sma_crossover_signal
 
 
-class PocStrategy(StrategySimulator):
-
-    def __init__(self, interval, exchange, base_currency, quote_currency, is_simulated, fma_periods, sma_periods, sim_balance=0):
+class PocStrategy(BaseStrategy):
+    """A strategy using the SMA crossover signal generator as a buy signal"""
+    def __init__(self, interval, exchange, base_currency, quote_currency, fma_periods, sma_periods, is_simulated, sim_balance=0):
         super().__init__(interval, exchange, base_currency, quote_currency, is_simulated, sim_balance)
         self.order_quantity = 1
         self.position_limit = 1

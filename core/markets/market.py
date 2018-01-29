@@ -12,7 +12,9 @@ markets = []
 
 
 class Market:
-    """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
+    """An object that allows a specific strategy to interface with an exchange,
+    This includes functionality to contain and update TA indicators as well as the latest OHLCV data
+    This also handles the API key for authentication, as well as methods to place orders"""
     def __init__(self, exchange, base_currency, quote_currency):
         exchange = getattr(ccxt, exchange)
         self.api_key = None
@@ -26,7 +28,7 @@ class Market:
         self.signals = []
         self.latest_candle = defaultdict(list)
         self.PairID = random.randint(1, 100)
-        ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
+        ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.exchange.id, self.base_currency, self.quote_currency)
         markets.append(self)
 
     def update(self, interval, candle):
@@ -35,11 +37,12 @@ class Market:
         self.do_ta_calculations(interval, candle)
 
     def do_ta_calculations(self, interval, candle):
-        """update TA indicators applied to market"""
+        """Update TA indicators applied to market"""
         for indicator in self.indicators[interval]:
             indicator.next_calculation(candle)
 
     def do_historical_ta_calculations(self, interval, candle_limit=None):
+        """Prime applied TA indicators on historical data"""
         if candle_limit is None:
             data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
         else:
@@ -49,7 +52,7 @@ class Market:
                 indicator.next_calculation(candle)
 
     def apply_indicator(self, indicator):
-        """Add indicator to list of indicators listening to market's candles"""
+        """Add indicator to list of indicators receiving to market's candles"""
         self.indicators[indicator.interval].append(indicator)
 
     def get_exchange_login(self):
@@ -64,6 +67,7 @@ class Market:
             print("Invalid login file")
 
     def limit_buy(self, quantity, price):
+        """Create a limit buy order"""
         try:
             print()
             print("Executed buy of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
@@ -73,6 +77,7 @@ class Market:
             print("Error creating buy order")
 
     def limit_sell(self, quantity, price):
+        """Create a limit sell order"""
         try:
             print()
             print("Executed sell of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
@@ -90,10 +95,12 @@ class Market:
             print("Not logged in properly")
 
     def get_best_bid(self):
+        """Check order book for latest best bid price"""
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['bids'][0][0] if len(orderbook['bids']) > 0 else None
 
     def get_best_ask(self):
+        """Check order book for latest best ask price"""
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
 
@@ -101,6 +108,7 @@ class Market:
     # looking for solutions (a 5000 entry query should not take multiple seconds to iterate)
     # https://stackoverflow.com/questions/9402033/python-is-slow-when-iterating-over-a-large-list
     def get_historical_candles(self, interval, candle_limit=None):
+        """Return historical candles from the DB"""
         if candle_limit is None:
             data = ohlcv_functions.get_all_candles(self.exchange.id, self.analysis_pair, interval)
         else:

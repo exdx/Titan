@@ -26,6 +26,7 @@ OHLCV = Table('OHLCV', metadata,
 
 TradingPairs = Table('TradingPairs', metadata,
                      Column('PairID', String, primary_key=True),
+                     Column('Exchange', String),
                      Column('BaseCurrency', String),
                      Column('QuoteCurrency', String),
                      )
@@ -67,6 +68,7 @@ TradingOrders = Table('TradingOrders', metadata,
                       Column('Price', Float),
                       Column('Simulated', String)
                       )
+
 
 def drop_tables():
     print('Dropping tables...')

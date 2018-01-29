@@ -10,7 +10,6 @@ conn = engine.connect()
 class SimpleMovingAverage(BaseIndicator):
     def __init__(self, market, interval, periods):
         super().__init__(market, interval, periods)
-        self.write_strategy_description_to_db()
         self.close = None
         self.timestamp = None
         self.value = None
@@ -36,8 +35,3 @@ class SimpleMovingAverage(BaseIndicator):
                 conn.execute(ins)
                 print('Wrote statistic to db...')
 
-    def write_strategy_description_to_db(self):
-        """Add ID and description to TAIdentifier table"""
-        with database.lock:
-            ins = database.TAIdentifier.insert().values(Description='A basic SMA Crossover Strategy - Moving Average {}'.format(self.periods))
-            conn.execute(ins)

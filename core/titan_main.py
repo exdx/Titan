@@ -12,15 +12,12 @@ def main():
     strategy.start()
     strategy2.start()
 
-    while True:
-        pass
 
 def start():
     try:
         # wipe and recreate tables
         database.reset_db()
 
-      # run main
         main()
 
     except Exception as e:

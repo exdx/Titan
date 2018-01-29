@@ -10,7 +10,9 @@ class BaseIndicator:
         self.periods = periods
         self.dataset = deque(maxlen=periods)
 
+
     def update_dataset(self, candle):
+        """Updates the cached candles"""
         if len(self.dataset) == self.periods:
             self.dataset.popleft()
         self.dataset.append(candle)

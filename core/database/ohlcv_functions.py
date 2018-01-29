@@ -90,10 +90,10 @@ def has_candle(candle_data, exchange, pair, interval):
         return False
 
 
-def write_trade_pairs_to_db(PairID, Base, Quote):
+def write_trade_pairs_to_db(PairID, exchange, Base, Quote):
     with database.lock:
         try:
-            ins = database.TradingPairs.insert().values(PairID=PairID, BaseCurrency=Base, QuoteCurrency=Quote)
+            ins = database.TradingPairs.insert().values(PairID=PairID, Exchange=exchange, BaseCurrency=Base, QuoteCurrency=Quote)
             conn.execute(ins)
         except IntegrityError:
             print("Pair already logged in DB")
