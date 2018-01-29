@@ -1,12 +1,16 @@
-import core.database
 from ta import simple_moving_average
 from ta import volume_change_monitor
 from signal_generators.base_signal_generator import BaseSignalGenerator
 
 
 class SmaCrossoverSignal(BaseSignalGenerator):
+    """This signal generator represents a simple sma crossover algorithm
+    For each new candle the fma and sma will be compared
+    When the fma crosses the sma, the high of the candle is cached
+    When the price passes that cached high, the signal will return True then go back to waiting for another crossover
+    If the fma goes back below sma the cached high is forgotten and the strategy waits for another crossover"""
     def __init__(self, market, interval, sma_short, sma_long):
-        """here is where you determine your values to keep track of, etc"""
+        """Specify TA indicators to use and values for tracking"""
         super().__init__(market, interval)
         self.fma = simple_moving_average.SimpleMovingAverage(self.market, interval, sma_short)
         self.sma = simple_moving_average.SimpleMovingAverage(self.market, interval, sma_long)
@@ -14,7 +18,7 @@ class SmaCrossoverSignal(BaseSignalGenerator):
         self.cached_high = None
 
     def check_condition(self, new_candle):
-        """will run every time a new candle is pulled"""
+        """will run every time a new candle is pulled, update the state of the signal generator"""
         print("GETTING SMA CROSSOVER SIGNAL")
         if (self.sma.value is not None) & (self.fma.value is not None) & (self.vol_change.value is not None):
             print("SMA: " + str(self.sma.value))

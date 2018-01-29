@@ -13,7 +13,6 @@ class BaseStrategy:
     """An abstract class that implements the backbone functionality of a strategy
 
     Stragies inheriting from this class can specify the following things in their __init__ method:
-        - buy_signal - Signal generator to initiate the opening of a long position
         - order_quantity - Quantity of asset to buy
         - profit_target_percent - Profit target percent to dictate when to liquidate position
         - position_limit - Number of concurrent positions to be open at the same time
@@ -44,7 +43,6 @@ class BaseStrategy:
         self.name = None
         self.order_quantity = None
         self.position_limit = None
-        self.buy_signal = None
         self.profit_target_percent = None
         self.fixed_stoploss_percent = None
         self.trailing_stoploss_percent = None
@@ -53,7 +51,36 @@ class BaseStrategy:
 
     def start(self):
         """Subscribe the strategy to the correct market watcher for historical to finish syncing as well as for latest candles"""
-        self.__thread.start()
+        if not self.__running:
+            self.__thread.start()
+
+    def stop(self):
+        """Stop the strategy"""
+        self.__running = False
+
+    def on_data(self, candle):
+       """Logic to be implemented by inheriting strategies"""
+
+    def get_open_position_count(self):
+        """Get number of long positions opened by this strategy and currently open"""
+        count = len([p for p in self.positions if p.is_open])
+        print(str(count) + " long positions open")
+        return count
+
+    def long(self):
+        """Open a long position"""
+        if self.is_simulated:
+            self.positions.append(market_simulator.open_long_position_simulation(self.market, self.order_quantity,
+                                                                                 self.market.latest_candle[self.interval][3],
+                                                                                 self.fixed_stoploss_percent,
+                                                                                 self.trailing_stoploss_percent,
+                                                                                 self.profit_target_percent))
+        else:
+            self.positions.append(position.open_long_position(self.market, self.order_quantity,
+                                                          self.market.get_best_ask(),
+                                                          self.fixed_stoploss_percent,
+                                                          self.trailing_stoploss_percent,
+                                                          self.profit_target_percent))
 
     def __initialize(self):
         if self.is_simulated:
@@ -88,11 +115,7 @@ class BaseStrategy:
             """Run updates on all markets/indicators/signal generators running in strategy"""
             self.market.update(self.interval, candle)
             self.__update_positions()
-            buy_condition = self.buy_signal.check_condition(candle)
-            if self.get_open_position_count() >= self.position_limit:
-                pass
-            elif buy_condition:
-                self.long()
+            self.on_data(candle)
         self.__jobs.put(lambda: update(candle))
 
     def __run_simulation(self, candle_set=None):
@@ -107,35 +130,12 @@ class BaseStrategy:
             self.simulating = False
         self.__jobs.put(lambda: run_simulation(candle_set))
 
-
-    def get_open_position_count(self):
-        """Get number of long positions opened by this strategy and currently open"""
-        count = len([p for p in self.positions if p.is_open])
-        print(str(count) + " long positions open")
-        return count
-
     def __update_positions(self):
         """Trigger positions opened by this strategy to check if stop losses or profit targets have been met
         Should be called on every candle"""
         for p in self.positions:
             if p.is_open:
                 p.update()
-
-    def long(self):
-        """Open a long position"""
-        if self.is_simulated:
-            self.positions.append(market_simulator.open_long_position_simulation(self.market, self.order_quantity,
-                                                                                 self.market.latest_candle[
-                                                                                     self.interval][3],
-                                                                                 self.fixed_stoploss_percent,
-                                                                                 self.trailing_stoploss_percent,
-                                                                                 self.profit_target_percent))
-        else:
-            self.positions.append(position.open_long_position(self.market, self.order_quantity,
-                                                          self.market.get_best_ask(),
-                                                          self.fixed_stoploss_percent,
-                                                          self.trailing_stoploss_percent,
-                                                          self.profit_target_percent))
 
     def __run(self):
         """Start listener queue waiting for ticks"""
