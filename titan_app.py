@@ -1,12 +1,11 @@
 from flask import Flask, render_template
 from flask import request
 from flask_debugtoolbar import DebugToolbarExtension
-from flask.json import jsonify
 from core import titan_main
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'asdfg'
+app.config['SECRET_KEY'] = '100'
 app.debug = True
 toolbar = DebugToolbarExtension(app)
 
@@ -16,22 +15,18 @@ def mainpage():
     return render_template('main.html')
 
 
-@app.route("/", methods=['POST'])
-def trading_settings_form_post():
+@app.route("/initialize_bot", methods=['POST'])
+def initialize_bot():
     user_exchange = request.form['exchange']
     user_basecurrency = request.form['basecurrency']
     user_quotecurrency = request.form['quotecurrency']
     user_candleinterval = request.form['candleinterval']
-    user_simulationtrade = request.form['simulation_setting']
+    user_simulationtrade = 1
 
-    user_input = [user_exchange.lower(), user_basecurrency.lower(), user_quotecurrency.lower(), user_candleinterval.lower(), bool(user_simulationtrade)]
+    user_input = [user_exchange.lower(), user_basecurrency.upper(), user_quotecurrency.upper(), user_candleinterval, bool(user_simulationtrade)]
 
-    return jsonify(user_input)
+    titan_main.main(user_input)
 
-
-@app.route("/forward", methods=['GET', 'POST'])
-def move_forward():
-    titan_main.main(d)
     return render_template('results.html')
 
 

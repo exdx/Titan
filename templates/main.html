@@ -29,26 +29,24 @@
     <br><br><br>
     <div class ="Trading Settings">
         <h3>Trading Platform</h3>
-        <form method="POST">
+        <form action="{{ url_for('initialize_bot') }}" method="POST">
             Exchange:<br>
-            <input type="text" name="exchange"><br>
+            <input type="text" name="exchange"> <br><br>
             Base Currency:<br>
-            <input type="text" name="basecurrency"><br>
+            <input type="text" name="basecurrency"> <br><br>
             Quote Currency:<br>
-            <input type="text" name="quotecurrency"><br>
+            <input type="text" name="quotecurrency"> <br><br>
             Candle Interval:<br>
-            <input type="text" name="candleinterval"><br><br>
-        </form>
-    </div>
+            <input type="text" name="candleinterval"> <br><br>
 
     <br><br>
 
-
-    <form action="/forward" method="GET">
     <button name="forward_simulation" type="submit">Start Simulation!</button>
     <button name="forward_live" type="submit">Start Live Trading!</button>
-    </form>
+        </form>
+    </div>
     <br><br>
 
 </body>
+
 </html>
