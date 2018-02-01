@@ -8,7 +8,6 @@ conn = engine.connect()
 class VolumeChangeMonitor(BaseIndicator):
     def __init__(self, market, interval):
         super(VolumeChangeMonitor, self).__init__(market, interval, 2)
-        self.write_strategy_description_to_db()
         self.__previous_volume = 0
         self.close = None
         self.timestamp = None
@@ -34,9 +33,3 @@ class VolumeChangeMonitor(BaseIndicator):
                 ins = database.TAVolumeChange.insert().values(Exchange=self.market.exchange.id, Pair=self.market.analysis_pair, Time=self.timestamp, Volume=self.__previous_volume, Interval=self.periods, PercentVolumeChange=self.value, TimestampRaw=candle[0])
                 conn.execute(ins)
                 print('Wrote statistic to db...')
-
-    def write_strategy_description_to_db(self):
-        '''Add ID and description to TAIdentifier table'''
-        with database.lock:
-            ins = database.TAIdentifier.insert().values(Description='Keeps track of volume changes between each period')
-            conn.execute(ins)
