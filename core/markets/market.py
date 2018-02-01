@@ -4,7 +4,7 @@ import random
 import os
 from core.markets import order
 from collections import defaultdict
-from core.database import ohlcv_functions
+from core.markets import market_watcher
 
 from ccxt import BaseError
 
@@ -22,16 +22,17 @@ class Market:
         self.base_currency = base_currency
         self.quote_currency = quote_currency
         self.analysis_pair = '{}/{}'.format(self.base_currency, self.quote_currency)
-        self.indicators = defaultdict(list)
         self.signals = []
+        self.ohlcv_id = defaultdict(int)
+        self.indicators = defaultdict(list)
+        self.candles = defaultdict(list)
         self.latest_candle = defaultdict(list)
-        self.PairID = random.randint(1, 100)
-        ohlcv_functions.write_trade_pairs_to_db(self.PairID, self.base_currency, self.quote_currency)
         markets.append(self)
 
     def update(self, interval, candle):
         """Notify all indicators subscribed to the interval of a new candle"""
         self.latest_candle[interval] = candle
+        self.candles[interval].append(candle)
         self.do_ta_calculations(interval, candle)
 
     def do_ta_calculations(self, interval, candle):
@@ -101,14 +102,9 @@ class Market:
     # looking for solutions (a 5000 entry query should not take multiple seconds to iterate)
     # https://stackoverflow.com/questions/9402033/python-is-slow-when-iterating-over-a-large-list
     def get_historical_candles(self, interval, candle_limit=None):
+        if len(self.candles[interval]) == 0:
+            self.candles[interval] = market_watcher.get_market_watcher(self.exchange.id, self.base_currency, self.quote_currency, interval).get_historical_candles()
         if candle_limit is None:
-            data = ohlcv_functions.get_all_candles(self.exchange.id, self.analysis_pair, interval)
+            return self.candles[interval]
         else:
-            data = ohlcv_functions.get_latest_N_candles(self.exchange.id, self.analysis_pair, interval, candle_limit)
-        return [[entry[10], entry[4], entry[5], entry[6], entry[7], entry[8]] for entry in data]
-
-
-def update_all_candles(interval):
-    """Tell all instantiated markets to pull their latest candle"""
-    for market in markets:
-        market.tick(interval)
+            return self.candles[interval][-candle_limit:]

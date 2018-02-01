@@ -17,14 +17,14 @@ class SimpleMovingAverage(BaseIndicator):
 
     def next_calculation(self, candle):
         """Get latest N candles from market, do calculation, write results to db"""
-        self.update_dataset(candle)
-        if len(self.dataset) == self.periods:
+        if len(self.market.candles[self.interval]) >= self.periods:
             self.do_calculation(candle)
             self.write_ta_statistic_to_db(candle)
             print("Calculated new moving average: " + str(self.value))
 
     def do_calculation(self, candle):
-        data = list(c[4] for c in self.dataset)
+        dataset = self.market.candles[self.interval][-self.periods:]
+        data = list(c[4] for c in dataset)
         self.value = round(sma(data, self.periods)[-1], 6)
         self.close = candle[4]
         self.timestamp = ohlcv_functions.convert_timestamp_to_date(candle[0])

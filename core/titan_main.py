@@ -8,9 +8,11 @@ from core.markets import market_simulator
 def main():
 
     strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', 100, 700, True, sim_balance=10)
-    strategy2 = poc_strategy.PocStrategy("5m", 'binance', 'ETH', 'BTC', 233, 900, True, sim_balance=10)
+    #strategy2 = poc_strategy.PocStrategy("5m", 'binance', 'ETH', 'BTC', 233, 900, True, sim_balance=10)
+    strategy.run_simulation()
     strategy.start()
-    strategy2.start()
+    #strategy2.start()
+
 
     while True:
         pass

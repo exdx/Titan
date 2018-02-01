@@ -9,14 +9,13 @@ engine = database.engine
 conn = engine.connect()
 
 
-def insert_data_into_ohlcv_table(exchange, pair, interval, candle):
+def insert_data_into_ohlcv_table(exchange, pair, interval, candle, pair_id):
     """Inserts exchange candle data into table"""
     with database.lock:
         args = [exchange, pair, candle[0], candle[1], candle[2], candle[3], candle[4], candle[5], interval]
-        ins = database.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=convert_timestamp_to_date(args[2]), Open=args[3], High=args[4], Low=args[5], Close=args[6], Volume=args[7], Interval=args[8], TimestampRaw=args[2])
+        ins = database.OHLCV.insert().values(Exchange=args[0], Pair=args[1], Timestamp=convert_timestamp_to_date(args[2]), Open=args[3], High=args[4], Low=args[5], Close=args[6], Volume=args[7], Interval=args[8], TimestampRaw=args[2], PairID=pair_id)
         conn.execute(ins)
         print('Adding candle with timestamp: ' + str(candle[0]))
-
 
 
 def get_latest_candle(exchange, pair, interval):
@@ -28,14 +27,14 @@ def get_latest_candle(exchange, pair, interval):
         result.close()
         return row
 
-def get_all_candles(exchange, pair, interval):
+def get_all_candles(pair_id):
     with database.lock:
-        s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
-                                                database.OHLCV.c.Interval == interval))
-        result = conn.execute(s)
-        ret = result.fetchall()
-        result.close()
-        return list(ret)
+        #s = select([database.OHLCV]).where(database.OHLCV.c.PairID == pair_id)
+        result = conn.execute("SELECT TimestampRaw, Open, High, Low, Close, Volume FROM OHLCV WHERE PairID = ?", (pair_id,))
+        return [row for row in result]
+        #ret = result.fetchall()
+        #result.close()
+        #return list(ret)
 
 def get_latest_N_candles(exchange, pair, interval, N):
     with database.lock:
@@ -55,15 +54,6 @@ def get_latest_N_candles_as_df(exchange, pair, interval, N):
         df.columns = result.keys()
         result.close()
         return df
-
-def get_latest_ta_value(table, exchange, pair, interval):
-    with database.lock:
-        s = select([table]).where(and_(table.c.Exchange == exchange, table.c.Pair == pair,
-                                       table.c.Interval == interval)).limit(1)
-        result = conn.execute(s)
-        ret = result.fetchone()
-        result.close()
-        return ret
 
 def get_historical_ta_data_as_df():
     with database.lock:
@@ -90,13 +80,25 @@ def has_candle(candle_data, exchange, pair, interval):
         return False
 
 
-def write_trade_pairs_to_db(PairID, Base, Quote):
+def write_trade_pairs_to_db(exchange_id, base, quote, interval):
+    """Returns the ID of the trade pair"""
     with database.lock:
         try:
-            ins = database.TradingPairs.insert().values(PairID=PairID, BaseCurrency=Base, QuoteCurrency=Quote)
-            conn.execute(ins)
+            s = select([database.TradingPairs]).where(
+                and_(database.TradingPairs.c.Exchange == exchange_id,
+                     database.TradingPairs.c.BaseCurrency == base,
+                     database.TradingPairs.c.QuoteCurrency == quote,
+                     database.TradingPairs.c.Interval == interval))
+            result = conn.execute(s).fetchone()
+            if result is None:
+                ins = database.TradingPairs.insert().values(Exchange=exchange_id, BaseCurrency=base, QuoteCurrency=quote, Interval=interval)
+                conn.execute(ins)
+                return conn.execute(s).cursor.lastrowid
+            else:
+                return result[11]
         except IntegrityError:
             print("Pair already logged in DB")
+
 
 
 def convert_timestamp_to_date(timestamp):

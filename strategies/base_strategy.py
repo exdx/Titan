@@ -34,11 +34,16 @@ class BaseStrategy:
 
     def start(self):
         self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update))
-        if self.is_simulated:
-            market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__run_simulation)
-        else:
-            market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__warmup)
         self.__thread.start()
+
+    def warmup(self):
+        market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
+                                            self.market.quote_currency, self.interval, self.__warmup)
+
+    def run_simulation(self):
+        if self.is_simulated:
+            market_watcher.subscribe_historical(self.market.exchange.id, self.market.base_currency,
+                                            self.market.quote_currency, self.interval, self.__run_simulation)
 
     def __warmup(self, periods=None):
         def warmup(periods):
@@ -97,10 +102,11 @@ class BaseStrategy:
         while self.__running:
             if not self.__jobs.empty():
                 job = self.__jobs.get()
-                try:
-                    job()
-                except Exception as e:
-                    print(job.__name__ + " threw error:\n" + str(e))
+                job()
+                #try:
+                #    job()
+                #except Exception as e:
+                #    print(job.__name__ + " threw error:\n" + str(e))
 
 
 class StrategySimulator(BaseStrategy):

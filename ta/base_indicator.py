@@ -8,9 +8,3 @@ class BaseIndicator:
         self.interval = interval
         self.market.apply_indicator(self)
         self.periods = periods
-        self.dataset = deque(maxlen=periods)
-
-    def update_dataset(self, candle):
-        if len(self.dataset) == self.periods:
-            self.dataset.popleft()
-        self.dataset.append(candle)

@@ -4,7 +4,7 @@ from sqlalchemy import Table, Column, Integer, String, Float, MetaData, ForeignK
 from threading import Lock
 
 
-db_name = 'core.db'
+db_name = 'db_dev.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
 lock = Lock()
 engine = create_engine('sqlite:///{}'.format(db_fullpath), connect_args={'check_same_thread': False}, echo=False)
@@ -21,13 +21,16 @@ OHLCV = Table('OHLCV', metadata,
               Column('Close', Float),
               Column('Volume', Float),
               Column('Interval', String),
-              Column('TimestampRaw', Integer)
+              Column('TimestampRaw', Integer),
+              Column('PairID', String, ForeignKey('TradingPairs.ID')),
               )
 
 TradingPairs = Table('TradingPairs', metadata,
-                     Column('PairID', String, primary_key=True),
+                     Column('ID', Integer, primary_key=True),
+                     Column('Exchange', String),
                      Column('BaseCurrency', String),
                      Column('QuoteCurrency', String),
+                     Column('Interval', String)
                      )
 
 TAIdentifier = Table('TAIdentifier', metadata,
