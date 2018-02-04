@@ -14,7 +14,7 @@ IT PRINTS MONEY
 Ah yes, I see you've taken a basic microeconomics course before. Truth is, this is mainly a project to encourage people to write their own strategies and have a way to test them out. We want to lower the bar to algorithmic cryptocurrency trading to those who are interested but don't know where to start. 
 
 #### This sounds cool, I want to get involved!
-Great, there's tons of cool stuff you can work on. Beginners welcome. Check out our discord (here!)[https://discord.gg/4r9Qxuf]
+Great, there's tons of cool stuff you can work on. Beginners welcome. Check out our discord [here!](https://discord.gg/4r9Qxuf)
 
 
 ## Instructions
