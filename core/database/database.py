@@ -6,7 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-db_name = 'db_dev.db'
+db_name = 'core.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
 lock = Lock()
 engine = create_engine('sqlite:///{}'.format(db_fullpath), connect_args={'check_same_thread': False}, echo=False)
@@ -76,10 +76,13 @@ TradingOrders = Table('TradingOrders', metadata,
 
 def drop_tables():
     print('Dropping tables...')
+    metadata.drop_all(engine)
+
 
 def create_tables():#
     print('Creating tables...')
     metadata.create_all(engine)
+
 
 def reset_db():
     print('Resetting database...')

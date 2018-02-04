@@ -6,7 +6,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def main(user_input):
+
+def start_strategy(user_input):
 
     # strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', 100, 700, True, sim_balance=10)
     # strategy2 = poc_strategy.PocStrategy("5m", 'binance', 'ETH', 'BTC', 233, 900, True, sim_balance=10)
@@ -17,10 +18,16 @@ def main(user_input):
     strategy.start()
 
 
-def reset_db():
+def start_database():
+    database.create_tables()
+
+
+def start():
     try:
         # wipe and recreate tables
-        database.reset_db()
+        database.create_tables()
+
+        start_strategy()
 
     except Exception as e:
         print(e)
@@ -29,3 +36,5 @@ def reset_db():
         database.engine.dispose()
 
 
+if __name__ == "__main__":
+    start()

@@ -5,6 +5,7 @@ from core import titan_main
 import logging
 
 app = Flask(__name__)
+titan_main.start_database()
 
 app.config['SECRET_KEY'] = '100'
 app.debug = True
@@ -18,8 +19,8 @@ def mainpage():
     return render_template('main.html')
 
 
-@app.route("/initialize_bot", methods=['POST'])
-def initialize_bot():
+@app.route("/strategy", methods=['POST'])
+def strategy():
     user_exchange = request.form['exchange']
     user_basecurrency = request.form['basecurrency']
     user_quotecurrency = request.form['quotecurrency']
@@ -28,7 +29,9 @@ def initialize_bot():
 
     user_input = [user_exchange.lower(), user_basecurrency.upper(), user_quotecurrency.upper(), user_candleinterval, bool(user_simulationtrade)]
 
-    titan_main.main(user_input)
+
+    titan_main.start_strategy(user_input)
+
 
     return render_template('results.html')
 
