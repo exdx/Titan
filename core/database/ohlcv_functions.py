@@ -7,7 +7,6 @@ import logging
 
 
 logger = logging.getLogger(__name__)
-
 engine = database.engine
 conn = engine.connect()
 

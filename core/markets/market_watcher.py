@@ -74,12 +74,12 @@ class MarketWatcher:
             logger.info("No historical data for market, adding all available OHLCV data")
             for entry in data:
                 ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry, self.PairID)
-                logger.info('Writing candle ' + str(entry[0]) + ' to database')
+                print('Writing candle ' + str(entry[0]) + ' to database')
         else:
             for entry in data:
                 if not latest_db_candle[10] >= entry[0]:
                     ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry, self.PairID)
-                    logger.info('Writing missing candle ' + str(entry[0]) + ' to database')
+                    print('Writing missing candle ' + str(entry[0]) + ' to database')
         self.historical_synced = True
         pub.sendMessage(self.topic + "historical")
         logger.info('Market data has been synced.')
