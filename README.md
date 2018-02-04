@@ -20,7 +20,7 @@ Ah yes, I see you've taken a basic microeconomics course before. Truth is, this 
 Great, there's tons of cool stuff you can work on. Beginners welcome. Check out our discord [here!](https://discord.gg/4r9Qxuf)
 
 #### What's with the name Titan anyway?
-Sounds cool as heck, think about it. "Yeah I just made 5 BTC using that new Titan trading system" wew lad
+Sounds cool as heck, think about it. "Yeah made 5 BTC using that Titan trading system" has a certain ring to it. Plus it makes us feel important, ok?
 
 
 ## Instructions
