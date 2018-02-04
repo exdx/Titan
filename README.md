@@ -1,6 +1,6 @@
 # Titan
 
-![Alt Text](https://media.discordapp.net/attachments/379771994599849994/407006802207834113/titan_peek.png?width=600&height=800)
+![Alt Text](https://i.imgur.com/uebAKT4.png)
 
 A beginner friendly cryptocurrency automated trading framework.
 
