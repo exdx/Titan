@@ -1,9 +1,9 @@
 from core.database import database
 from strategies import poc_strategy
-from core.markets import ticker
 
 
-def main(user_input):
+
+def start_strategy(user_input):
 
     # strategy = poc_strategy.PocStrategy("5m", 'bittrex', 'ETH', 'BTC', 100, 700, True, sim_balance=10)
     # strategy2 = poc_strategy.PocStrategy("5m", 'binance', 'ETH', 'BTC', 233, 900, True, sim_balance=10)
@@ -14,20 +14,23 @@ def main(user_input):
     strategy.start()
 
 
+def start_database():
+    database.create_tables()
 
 
 def start():
     try:
         # wipe and recreate tables
-        database.reset_db()
+        database.create_tables()
 
-        main()
+        start_strategy()
 
     except Exception as e:
         print(e)
 
     finally:
         database.engine.dispose()
+
 
 if __name__ == "__main__":
     start()
