@@ -1,5 +1,5 @@
 # Titan
-A beginner friendly cryptocurrency trading bot framework
+A beginner friendly cryptocurrency automated trading framework.
 
 Titan is a totally free automated cryptocurrency trading system for traders of all skill levels. Built on top of the ccxt API library, it works out of the box with any exchange and trading pair. We believe in decentralizing trading strategies and providing everyone access to building advanced crypto portfolios. The future of algorithmic trading is here!
 
