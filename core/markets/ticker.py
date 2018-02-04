@@ -4,6 +4,9 @@ from core.markets import market
 from core.markets import market_watcher
 from strategies import base_strategy
 import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 tickers = {}
 
@@ -14,11 +17,11 @@ def start_ticker(interval):
 
 
 def __start_ticker(interval):
-    print(interval + " ticker running...")
+    logger.info(interval + " ticker running...")
     live_tick_count = 0
     while True:
         """Running this 'ticker' from the main loop to trigger listeners to pull candles every 5 minutes"""
-        print("Live Tick: {}".format(str(live_tick_count)))
+        logger.info("Live Tick: {}".format(str(live_tick_count)))
         pub.sendMessage("tick" + interval)
         live_tick_count += 1
         time.sleep(__convert_interval_to_int(interval))  # wait 5 minutes

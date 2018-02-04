@@ -1,20 +1,22 @@
 import ccxt
-import time
-import random
+import logging
 import os
 from core.markets import order
 from collections import defaultdict
 from core.markets import market_watcher
-
 from ccxt import BaseError
+
+
+logger = logging.getLogger(__name__)
 
 markets = []
 
 
 class Market:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
-    def __init__(self, exchange, base_currency, quote_currency):
+    def __init__(self, exchange, base_currency, quote_currency, strategy):
         exchange = getattr(ccxt, exchange)
+        self.strategy = strategy
         self.api_key = None
         self.secret_key = None
         self.get_exchange_login()
@@ -40,15 +42,6 @@ class Market:
         for indicator in self.indicators[interval]:
             indicator.next_calculation(candle)
 
-    def do_historical_ta_calculations(self, interval, candle_limit=None):
-        if candle_limit is None:
-            data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)
-        else:
-            data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-candle_limit:]
-        for indicator in self.indicators[interval]:
-            for candle in data:
-                indicator.next_calculation(candle)
-
     def apply_indicator(self, indicator):
         """Add indicator to list of indicators listening to market's candles"""
         self.indicators[indicator.interval].append(indicator)
@@ -62,33 +55,31 @@ class Market:
             self.exchange.api_key = data[0]
             self.exchange.secret_key = data[1]
         except:
-            print("Invalid login file")
+            logger.error("Invalid login file")
 
     def limit_buy(self, quantity, price):
         try:
-            print()
-            print("Executed buy of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
-            print()
+            self.strategy.send_message("Executed buy of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             return order.Order(self, "buy", "limit", quantity, price)
         except BaseError:
-            print("Error creating buy order")
+            self.strategy.send_message("Error creating buy order")
+            logger.error("Error creating buy order")
 
     def limit_sell(self, quantity, price):
         try:
-            print()
-            print("Executed sell of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
-            print()
+            self.strategy.send_message("Executed sell of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             return order.Order(self, "sell", "limit", quantity, price)
         except BaseError:
-            print("Error creating sell order")
+            self.strategy.send_message("Error creating sell order")
+            logger.error("Error creating sell order")
 
     def get_wallet_balance(self):
         """Get wallet balance for quote currency"""
         try:
-            print(self.exchange.fetch_balance())
+            logger.info(self.exchange.fetch_balance())
             return self.exchange.fetch_balance()
         except BaseError:
-            print("Not logged in properly")
+            logger.error("Not logged in properly")
 
     def get_best_bid(self):
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
@@ -98,9 +89,6 @@ class Market:
         orderbook = self.exchange.fetch_order_book(self.analysis_pair)
         return orderbook['asks'][0][0] if len(orderbook['asks']) > 0 else None
 
-    # this method slows everything down big time
-    # looking for solutions (a 5000 entry query should not take multiple seconds to iterate)
-    # https://stackoverflow.com/questions/9402033/python-is-slow-when-iterating-over-a-large-list
     def get_historical_candles(self, interval, candle_limit=None):
         if len(self.candles[interval]) == 0:
             self.candles[interval] = market_watcher.get_market_watcher(self.exchange.id, self.base_currency, self.quote_currency, interval).get_historical_candles()

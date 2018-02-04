@@ -4,14 +4,14 @@ from queue import Queue
 from core.database import ohlcv_functions
 from core.markets import ticker
 from ccxt import BaseError
-from ccxt.base.errors import RequestTimeout
 import ccxt
-import random
+import logging
 import time
 from pubsub import pub
 from threading import Lock
 
 lock = Lock()
+logger = logging.getLogger(__name__)
 
 class MarketWatcher:
     """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
@@ -44,7 +44,7 @@ class MarketWatcher:
                 try:
                     job()
                 except Exception as e:
-                    print(job.__name__ + " threw error:\n" + str(e))
+                    logger.error(job.__name__ + " threw error:\n" + str(e))
 
     def stop(self):
         """Stop listener queue"""
@@ -67,36 +67,36 @@ class MarketWatcher:
     def __sync_historical(self):
         """Load all missing historical candles to database
         and ticks applied strategies on historical data"""
-        print('Syncing market candles with DB...')
+        logger.info('Syncing market candles with DB...')
         latest_db_candle = ohlcv_functions.get_latest_candle(self.exchange.id, self.analysis_pair, self.interval)
         data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
         if latest_db_candle is None:
-            print("No historical data for market, adding all available OHLCV data")
+            logger.info("No historical data for market, adding all available OHLCV data")
             for entry in data:
                 ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry, self.PairID)
-                print('Writing candle ' + str(entry[0]) + ' to database')
+                logger.info('Writing candle ' + str(entry[0]) + ' to database')
         else:
             for entry in data:
                 if not latest_db_candle[10] >= entry[0]:
                     ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, self.interval, entry, self.PairID)
-                    print('Writing missing candle ' + str(entry[0]) + ' to database')
+                    logger.info('Writing missing candle ' + str(entry[0]) + ' to database')
         self.historical_synced = True
         pub.sendMessage(self.topic + "historical")
-        print('Market data has been synced.')
+        logger.info('Market data has been synced.')
 
     def __pull_latest_candle(self, interval):
         """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
-        print("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
+        logger.info("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
         latest_data = None
         try:
             latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
             while latest_data == self.latest_candle:
-                print('Candle already contained in DB, retrying...')
+                logger.info('Candle already contained in DB, retrying...')
                 time.sleep(self.exchange.rateLimit * 2 / 1000)
                 latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, latest_data, self.PairID)
         except BaseError:
-            print("Timeout pulling latest candle, trying again")
+            logger.info("Timeout pulling latest candle, trying again")
             self.__pull_latest_candle(interval)
         self.latest_candle = latest_data
         pub.sendMessage(self.topic, candle=self.latest_candle)

@@ -17,7 +17,6 @@ class VolumeChangeMonitor(BaseIndicator):
         """get latest N candles from market, do calculation, write results to db"""
         self.do_calculation(candle)
         self.write_ta_statistic_to_db(candle)
-        print("Calculated new volume change: " + str(self.value))
 
     def do_calculation(self, candle):
         new_volume = candle[5]
@@ -32,4 +31,3 @@ class VolumeChangeMonitor(BaseIndicator):
         with database.lock:
                 ins = database.TAVolumeChange.insert().values(Exchange=self.market.exchange.id, Pair=self.market.analysis_pair, Time=self.timestamp, Volume=self.__previous_volume, Interval=self.periods, PercentVolumeChange=self.value, TimestampRaw=candle[0])
                 conn.execute(ins)
-                print('Wrote statistic to db...')

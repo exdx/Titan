@@ -2,13 +2,16 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy import Table, Column, Integer, String, Float, MetaData, ForeignKey
 from threading import Lock
+import logging
 
+logger = logging.getLogger(__name__)
 
 db_name = 'db_dev.db'
 db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
 lock = Lock()
 engine = create_engine('sqlite:///{}'.format(db_fullpath), connect_args={'check_same_thread': False}, echo=False)
 metadata = MetaData()
+
 
 OHLCV = Table('OHLCV', metadata,
               Column('ID', Integer, primary_key=True),
@@ -73,19 +76,10 @@ TradingOrders = Table('TradingOrders', metadata,
 
 def drop_tables():
     print('Dropping tables...')
-    #metadata.drop_all(engine)
-    TradingPairs.drop(engine)
-    TAIdentifier.drop(engine)
-    TAVolumeChange.drop(engine)
-    TAMovingAverage.drop(engine)
 
 def create_tables():#
     print('Creating tables...')
-    #metadata.create_all(engine)
-    TradingPairs.create(engine)
-    TAIdentifier.create(engine)
-    TAVolumeChange.create(engine)
-    TAMovingAverage.create(engine)
+    metadata.create_all(engine)
 
 def reset_db():
     print('Resetting database...')

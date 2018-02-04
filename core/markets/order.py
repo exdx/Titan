@@ -1,8 +1,11 @@
 import datetime
 import time
+import logging
 from ccxt import OrderNotFound
 from core.database import database
 
+
+logger = logging.getLogger(__name__)
 
 engine = database.engine
 conn = engine.connect()
@@ -17,6 +20,7 @@ class Order:
         self.amount = amount
         self.price = price
         self.__order_receipt = None
+        logger.info("Opening " + side + " order of " + amount + " " + self.market.base_currency)
         self.execute()
 
     def execute(self):
@@ -28,11 +32,11 @@ class Order:
                 self.__order_receipt = self.market.exchange.create_limit_sell_order(self.market.analysis_pair, self.amount, self.price)
                 write_order_to_db(self.market.exchange.id, self.market.analysis_pair, 'short', self.amount, self.price, "live")
             else:
-                print("Invalid order side: " + self.side + ", specify 'buy' or 'sell' ")
+                logger.error("Invalid order side: " + self.side + ", specify 'buy' or 'sell' ")
         elif self.type == "market":
-            print("Market orders not available")
+            logger.error("Market orders not available")
         else:
-            print("Invalid order type: " + self.type + ", specify 'limit' or 'market' ")
+            logger.error("Invalid order type: " + self.type + ", specify 'limit' or 'market' ")
 
     def get_id(self):
         return self.__order_receipt.get().id
@@ -41,7 +45,7 @@ class Order:
         try:
             self.market.exchange.cancel_order(self.get_id())
         except OrderNotFound:
-            print("Order cannot be canceled. Has already been filled")
+            logger.error("Order cannot be canceled. Has already been filled")
 
     def is_open(self):
         return self.market.exchange.fetch_order(self.get_id())['remaining'] > 0
@@ -59,7 +63,7 @@ class Order:
 def write_order_to_db(exchange, pair, position, amount, price, simulated):
     ins = database.TradingOrders.insert().values(Timestamp=get_timestamp(), Exchange=exchange, Pair=pair, Position=position, Amount=amount, Price=price, Simulated=simulated)
     conn.execute(ins)
-    print("Wrote open order to DB...")
+    logger.info("Wrote open order to DB...")
 
 
 def get_timestamp():

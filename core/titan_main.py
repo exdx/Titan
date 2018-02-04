@@ -1,6 +1,9 @@
 from core.database import database
 from strategies import poc_strategy
-from core.markets import ticker
+from time import sleep
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def main(user_input):
@@ -14,14 +17,10 @@ def main(user_input):
     strategy.start()
 
 
-
-
-def start():
+def reset_db():
     try:
         # wipe and recreate tables
         database.reset_db()
-
-        main()
 
     except Exception as e:
         print(e)
@@ -29,5 +28,4 @@ def start():
     finally:
         database.engine.dispose()
 
-if __name__ == "__main__":
-    start()
+

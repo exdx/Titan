@@ -2,12 +2,15 @@ from flask import Flask, render_template
 from flask import request
 from flask_debugtoolbar import DebugToolbarExtension
 from core import titan_main
+import logging
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '100'
 app.debug = True
 toolbar = DebugToolbarExtension(app)
+
+logger = logging.getLogger(__name__)
 
 
 @app.route("/")

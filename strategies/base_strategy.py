@@ -2,12 +2,12 @@ from core.markets import market_watcher
 from core.markets import market_simulator
 from core.markets import market
 from core.markets import position
-from collections import defaultdict
 from threading import Thread
 from queue import Queue
+import logging
 
-strategies = defaultdict(list)
-
+strategies = []
+logger = logging.getLogger(__name__)
 
 class BaseStrategy:
 
@@ -15,7 +15,7 @@ class BaseStrategy:
         self.market = None
         self.__thread = Thread(target=self.__run)
         self.__jobs = Queue()  # create job queue
-        self.__running = False
+        self.running = False
         self.positions = []
         self.interval = interval
         self.is_simulated = is_simulated
@@ -27,10 +27,12 @@ class BaseStrategy:
         self.fixed_stoploss_percent = None
         self.trailing_stoploss_percent = None
         if self.is_simulated:
-            self.market = market_simulator.MarketSimulator(exchange, base_currency, quote_currency, simulated_quote_balance)
+            self.market = market_simulator.MarketSimulator(exchange, base_currency, quote_currency, simulated_quote_balance, self)
         else:
-            self.market = market.Market(exchange, base_currency, quote_currency)
-        strategies[interval].append(self)
+            self.market = market.Market(exchange, base_currency, quote_currency, self)
+        strategies.append(self)
+        self.strategy_id = len(strategies)
+        self.ui_messages = Queue()
 
     def start(self):
         self.__jobs.put(lambda: market_watcher.subscribe(self.market.exchange.id, self.market.base_currency, self.market.quote_currency, self.interval, self.__update))
@@ -47,6 +49,7 @@ class BaseStrategy:
 
     def __warmup(self, periods=None):
         def warmup(periods):
+            self.print_message("Warming up strategy")
             if periods is None:
                 historical_data = self.market.get_historical_candles(self.interval)
             else:
@@ -58,7 +61,7 @@ class BaseStrategy:
     def __run_simulation(self, candle_set=None):
         """Load all historical candles to database"""
         def run_simulation(candle_set):
-            print('Simulating strategy for market...')
+            self.print_message("Simulating strategy for market " + self.market.exchange.id + " " + self.market.analysis_pair)
             if candle_set is None:
                 candle_set = self.market.get_historical_candles(self.interval, 1000)
             self.simulating = True
@@ -70,6 +73,7 @@ class BaseStrategy:
     def __update(self, candle):
         """Run updates on all markets/indicators/signal generators running in strategy"""
         def update(candle):
+            self.print_message("Received new candle")
             self.market.update(self.interval, candle)
             self.__update_positions()
             buy_condition = self.buy_signal.check_condition(candle)
@@ -77,11 +81,12 @@ class BaseStrategy:
                 pass
             elif buy_condition:
                 self.long()
+            self.print_message("Simulation portfolio value: " + str(self.market.get_wallet_balance()))
         self.__jobs.put(lambda: update(candle))
 
     def get_open_position_count(self):
         count = len([p for p in self.positions if p.is_open])
-        print(str(count) + " long positions open")
+        self.print_message(str(count) + " long positions open")
         return count
 
     def __update_positions(self):
@@ -90,6 +95,7 @@ class BaseStrategy:
                 p.update()
 
     def long(self):
+        self.print_message("Going long on " + self.market.analysis_pair)
         self.positions.append(position.open_long_position(self.market, self.order_quantity,
                                                           self.market.get_best_ask(),
                                                           self.fixed_stoploss_percent,
@@ -98,20 +104,27 @@ class BaseStrategy:
 
     def __run(self):
         """Start listener queue waiting for ticks"""
-        self.__running = True
-        while self.__running:
+        self.print_message("Starting strategy " + str(self.strategy_id))
+        self.running = True
+        while self.running:
             if not self.__jobs.empty():
                 job = self.__jobs.get()
                 job()
                 #try:
                 #    job()
                 #except Exception as e:
-                #    print(job.__name__ + " threw error:\n" + str(e))
+                #    logger.error(job.__name__ + " threw error:\n" + str(e))
+
+    def print_message(self, msg):
+        print(str("Strategy " + str(self.strategy_id) + ": " + msg))
+        logger.info(msg)
+        self.ui_messages.put(msg)
 
 
 class StrategySimulator(BaseStrategy):
 
     def long(self):
+        self.print_message("Going long on " + self.market.analysis_pair)
         self.positions.append(market_simulator.open_long_position_simulation(self.market, self.order_quantity,
                                                                        self.market.latest_candle[self.interval][3],
                                                                        self.fixed_stoploss_percent,

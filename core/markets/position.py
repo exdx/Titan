@@ -1,6 +1,8 @@
 """Module to create, remove, and manage trades currently in play in running strategies"""
-
 from core.markets.order import Order
+import logging
+
+logger = logging.getLogger(__name__)
 
 positions = []
 
@@ -38,7 +40,6 @@ class LongPosition(Position):
         elif self.market.get_best_bid() < self.trailing_stoploss or \
                 self.market.get_best_bid() < self.fixed_stoploss or \
                 self.market.get_best_bid() >= self.profit_target:  # check price against last calculated trailing stoploss
-            print("Liquidating long position")
             self.liquidate_position()
         # re-calculate trailing stoploss
         self.trailing_stoploss = self.calculate_trailing_stoploss()
@@ -63,7 +64,8 @@ class LongPosition(Position):
 
     def liquidate_position(self):
         """Will use this method to actually create the order that liquidates the position"""
-        self.market.limit_buy(self.amount, self.market.get_best_bid())
+        logger.info("Liquidating long position of " + self.amount + " | " + self.market.analysis_pair)
+        self.market.limit_sell(self.amount, self.market.get_best_bid())
         self.is_open = False
 
 
