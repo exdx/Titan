@@ -13,7 +13,10 @@ markets = []
 
 
 class Market:
-    """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
+    """An object that allows a specific strategy to interface with an exchange,
+    This includes functionality to contain and update TA indicators as well as the latest OHLCV data
+    This also handles the API key for authentication, as well as methods to place orders"""
+
     def __init__(self, exchange, base_currency, quote_currency, strategy):
         exchange = getattr(ccxt, exchange)
         self.strategy = strategy
@@ -58,6 +61,7 @@ class Market:
             logger.error("Invalid login file")
 
     def limit_buy(self, quantity, price):
+        """Place a limit buy order"""
         try:
             self.strategy.send_message("Executed buy of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             return order.Order(self, "buy", "limit", quantity, price)
@@ -66,6 +70,7 @@ class Market:
             logger.error("Error creating buy order")
 
     def limit_sell(self, quantity, price):
+        """Place a limit sell order"""
         try:
             self.strategy.send_message("Executed sell of " + str(quantity) + " " + self.base_currency + " for " + str(price) + " " + self.quote_currency)
             return order.Order(self, "sell", "limit", quantity, price)

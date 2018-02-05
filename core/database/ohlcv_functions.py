@@ -36,15 +36,6 @@ def get_all_candles(pair_id):
         result = conn.execute("SELECT TimestampRaw, Open, High, Low, Close, Volume FROM OHLCV WHERE PairID = ?", (pair_id,))
         return [row for row in result]
 
-def get_latest_N_candles(exchange, pair, interval, N):
-    with database.lock:
-        logger.info("Retrieving latest " + N +  " candles for pair " + exchange + " " + pair)
-        s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair,
-                                            database.OHLCV.c.Interval == interval))
-        result = conn.execute(s)
-        ret = result.fetchmany(N)
-        result.close()
-        return list(ret)
 
 def get_latest_N_candles_as_df(exchange, pair, interval, N):
     """Returns N latest candles for TA calculation purposes"""
@@ -55,30 +46,6 @@ def get_latest_N_candles_as_df(exchange, pair, interval, N):
         df.columns = result.keys()
         result.close()
         return df
-
-def get_historical_ta_data_as_df():
-    with database.lock:
-        s = select([database.TAMovingAverage]).order_by(database.TAMovingAverage.c.TA_Det_ID.asc())
-        result = conn.execute(s)
-        df = pd.DataFrame(result.fetchall())
-        df.columns = result.keys()
-        result.close()
-        #historical_ta_data = df['TA_Det_ID', 'Close', 'Interval', 'MovingAverage']
-        return df
-
-def has_candle(candle_data, exchange, pair, interval):
-    """Checks to see if the candle is already in the historical dataset pulled"""
-    with database.lock:
-        logger.info('Checking for candle with timestamp: ' + str(candle_data[0]))
-
-        s = select([database.OHLCV]).where(and_(database.OHLCV.c.Exchange == exchange, database.OHLCV.c.Pair == pair, database.OHLCV.c.Interval == interval)).order_by(database.OHLCV.c.ID.desc()).limit(10)
-        result = conn.execute(s)
-
-        for row in result: # limited result to latest 10 entries
-            if row[3] == convert_timestamp_to_date(candle_data[0]) and row[1] == exchange and row[2] == pair:  # compare timestamp of database row to timestamp of candle data passed in
-                return True
-        result.close()
-        return False
 
 
 def write_trade_pairs_to_db(exchange_id, base, quote, interval):

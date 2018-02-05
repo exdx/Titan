@@ -30,6 +30,7 @@ class LongPosition(Position):
         self.initial_order = None
 
     def open(self):
+        """Use the market to place the order"""
         self.initial_order = self.market.limit_buy(self.amount, self.price)
         self.is_open = True
 

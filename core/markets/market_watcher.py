@@ -14,7 +14,11 @@ lock = Lock()
 logger = logging.getLogger(__name__)
 
 class MarketWatcher:
-    """Initialize core Market object that details the exchange, trade pair, and interval being considered in each case"""
+    """Active object that subscribes to a ticker of a specific interval and keeps track of OHLCV data
+     A market watcher is instantiated with a trading pair (base, quote) and an interval
+     It then subscribes to the ticker of that interval and calls for candles each time period
+     It is responsible for syncing data with the DB and adding new candles
+     Strategies that subscribe to the ticker will be given the new candles"""
     def __init__(self, exchange, base_currency, quote_currency, interval):
         exchange = getattr(ccxt, exchange)
         ticker.start_ticker(interval)
@@ -23,7 +27,7 @@ class MarketWatcher:
         self.interval = interval
         self.base_currency = base_currency
         self.quote_currency = quote_currency
-        self.topic = str(self.exchange.id + self.analysis_pair + self.interval)
+        self.topic = self.exchange.id + self.analysis_pair + self.interval
         self.__thread = Thread(target=self.__run)  # create thread for listener
         self._jobs = Queue()  # create job queue
         self.__running = False
@@ -44,6 +48,7 @@ class MarketWatcher:
                 try:
                     job()
                 except Exception as e:
+                    print(e)
                     logger.error(job.__name__ + " threw error:\n" + str(e))
 
     def stop(self):
@@ -51,7 +56,7 @@ class MarketWatcher:
         self.__running = False
 
     def tick(self):
-        """Initiate pull of latest candle, ta calculations, and notify strategies"""
+        """Queue a pull of the latest candle"""
         if self.historical_synced:
             self._jobs.put(lambda: self.__pull_latest_candle(self.interval))
 
@@ -62,11 +67,9 @@ class MarketWatcher:
     def get_historical_candles(self):
         data = ohlcv_functions.get_all_candles(self.PairID)
         return data
-        #return [[entry[10], entry[4], entry[5], entry[6], entry[7], entry[8]] for entry in data]
 
     def __sync_historical(self):
-        """Load all missing historical candles to database
-        and ticks applied strategies on historical data"""
+        """Load all missing historical candles to database"""
         logger.info('Syncing market candles with DB...')
         latest_db_candle = ohlcv_functions.get_latest_candle(self.exchange.id, self.analysis_pair, self.interval)
         data = self.exchange.fetch_ohlcv(self.analysis_pair, self.interval)
@@ -87,25 +90,30 @@ class MarketWatcher:
     def __pull_latest_candle(self, interval):
         """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
         logger.info("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
+        print("Getting latest candle")
         latest_data = None
         try:
             latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
             while latest_data == self.latest_candle:
+                print("retrying candle update")
                 logger.info('Candle already contained in DB, retrying...')
                 time.sleep(self.exchange.rateLimit * 2 / 1000)
                 latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
             ohlcv_functions.insert_data_into_ohlcv_table(self.exchange.id, self.analysis_pair, interval, latest_data, self.PairID)
-        except BaseError:
+        except Exception as e:
+            print(e)
             logger.info("Timeout pulling latest candle, trying again")
             self.__pull_latest_candle(interval)
         self.latest_candle = latest_data
         pub.sendMessage(self.topic, candle=self.latest_candle)
+        print("Sent message to " + self.topic)
 
 
 lookup_list = defaultdict(MarketWatcher)
 
 
 def get_market_watcher(exchange_id, base, quote, interval):
+    """Return or create market watcher for the given analysis market"""
     topic = str(exchange_id + base + "/" + quote + interval)
     if topic not in lookup_list:
         lookup_list[topic] = MarketWatcher(exchange_id, base, quote, interval)
@@ -131,4 +139,5 @@ def subscribe(exchange_id, base, quote, interval, callable):
     with lock:
         topic = str(exchange_id + base + "/" + quote + interval)
         get_market_watcher(exchange_id, base, quote, interval)
+        print("Subscribing to " + topic)
         pub.subscribe(callable, topic)

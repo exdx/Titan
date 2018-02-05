@@ -1,7 +1,7 @@
 import logging
 
-
 logger = logging.getLogger(__name__)
+
 
 class BaseSignalGenerator:
     """Defines an abstract strategy class for subsequent signal generators to inherit from"""

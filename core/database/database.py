@@ -36,32 +36,6 @@ TradingPairs = Table('TradingPairs', metadata,
                      Column('Interval', String)
                      )
 
-TAIdentifier = Table('TAIdentifier', metadata,
-                      Column('IndicatorID', Integer, primary_key=True),
-                      Column('Description', String),
-                      )
-
-TAMovingAverage = Table('TAMovingAverage', metadata,
-                         Column('AverageID', Integer, primary_key=True),
-                         Column('Exchange', String),
-                         Column('Pair', String),
-                         Column('Time', String),
-                         Column('Close', Float),
-                         Column('Interval', Integer),
-                         Column('MovingAverage', Float),
-                         Column('TimestampRaw', Integer)
-                         )
-
-TAVolumeChange = Table('TAVolumeChange', metadata,
-                         Column('VolumeID', Integer, primary_key=True),
-                         Column('Exchange', String),
-                         Column('Pair', String),
-                         Column('Time', String),
-                         Column('Volume', Float),
-                         Column('Interval', Integer),
-                         Column('PercentVolumeChange', Float),
-                         Column('TimestampRaw', Integer)
-                         )
 
 TradingOrders = Table('TradingOrders', metadata,
                       Column('Timestamp', String),

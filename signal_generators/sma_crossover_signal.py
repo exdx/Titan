@@ -5,8 +5,12 @@ from signal_generators.base_signal_generator import BaseSignalGenerator
 
 
 class SmaCrossoverSignal(BaseSignalGenerator):
+    """"This signal generator represents a simple sma crossover algorithm
+    For each new candle the fma and sma will be compared
+    When the fma crosses the sma, the high of the candle is cached
+    When the price passes that cached high, the signal will return True then go back to waiting for another crossover
+    If the fma goes back below sma the cached high is forgotten and the strategy waits for another crossover"""
     def __init__(self, market, interval, sma_short, sma_long, strategy):
-        """here is where you determine your values to keep track of, etc"""
         super().__init__(market, interval, strategy)
         self.fma = simple_moving_average.SimpleMovingAverage(self.market, interval, sma_short)
         self.sma = simple_moving_average.SimpleMovingAverage(self.market, interval, sma_long)

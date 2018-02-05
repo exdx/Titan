@@ -61,9 +61,10 @@ class Order:
 
 
 def write_order_to_db(exchange, pair, position, amount, price, simulated):
-    ins = database.TradingOrders.insert().values(Timestamp=get_timestamp(), Exchange=exchange, Pair=pair, Position=position, Amount=amount, Price=price, Simulated=simulated)
-    conn.execute(ins)
-    logger.info("Wrote open order to DB...")
+    with database.lock:
+        ins = database.TradingOrders.insert().values(Timestamp=get_timestamp(), Exchange=exchange, Pair=pair, Position=position, Amount=amount, Price=price, Simulated=simulated)
+        conn.execute(ins)
+        logger.info("Wrote open order to DB...")
 
 
 def get_timestamp():

@@ -16,7 +16,6 @@ class VolumeChangeMonitor(BaseIndicator):
     def next_calculation(self, candle):
         """get latest N candles from market, do calculation, write results to db"""
         self.do_calculation(candle)
-        self.write_ta_statistic_to_db(candle)
 
     def do_calculation(self, candle):
         new_volume = candle[5]
@@ -26,8 +25,3 @@ class VolumeChangeMonitor(BaseIndicator):
         self.timestamp = ohlcv_functions.convert_timestamp_to_date(candle[0])
         self.close = candle[4]
 
-    def write_ta_statistic_to_db(self, candle):
-        """Inserts average into table"""
-        with database.lock:
-                ins = database.TAVolumeChange.insert().values(Exchange=self.market.exchange.id, Pair=self.market.analysis_pair, Time=self.timestamp, Volume=self.__previous_volume, Interval=self.periods, PercentVolumeChange=self.value, TimestampRaw=candle[0])
-                conn.execute(ins)
