@@ -25,13 +25,14 @@ def strategy():
     user_basecurrency = request.form['basecurrency']
     user_quotecurrency = request.form['quotecurrency']
     user_candleinterval = request.form['candleinterval']
-    user_simulationtrade = 1
+    user_sma = request.form['sma']
+    user_fma = request.form['fma']
+    user_balance = request.form['balance']
 
-    user_input = [user_exchange.lower(), user_basecurrency.upper(), user_quotecurrency.upper(), user_candleinterval, bool(user_simulationtrade)]
-
-
-    titan_main.start_strategy(user_input)
-
+    if request.form['forward_simulation']:
+        user_input = [user_exchange.lower(), user_basecurrency.upper(), user_quotecurrency.upper(),
+                      user_candleinterval, 1, int(user_sma), int(user_fma), int(user_balance)]
+        titan_main.start_strategy(user_input)
 
     return render_template('results.html')
 

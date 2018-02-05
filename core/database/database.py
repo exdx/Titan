@@ -54,7 +54,6 @@ def drop_tables():
 
 
 def create_tables():#
-    print('Creating tables...')
     metadata.create_all(engine)
 
 
