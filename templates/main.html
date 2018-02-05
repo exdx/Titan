@@ -27,24 +27,41 @@
     </div>
 
     <br><br><br>
-    <div class ="Trading Settings">
-        <h3>Trading Platform</h3>
+
+    <div class="All Trading Parameters">
         <form action="{{ url_for('strategy') }}" method="POST">
-            Exchange:<br>
-            <input type="text" name="exchange"> <br><br>
-            Base Currency:<br>
-            <input type="text" name="basecurrency"> <br><br>
-            Quote Currency:<br>
-            <input type="text" name="quotecurrency"> <br><br>
-            Candle Interval:<br>
-            <input type="text" name="candleinterval"> <br><br>
+        <div class ="trading-settings-left">
+            <h3>Trading Platform</h3>
 
-    <br><br>
+                Exchange:<br>
+                <input type="text" name="exchange"> <br><br>
+                Base Currency:<br>
+                <input type="text" name="basecurrency"> <br><br>
+                Quote Currency:<br>
+                <input type="text" name="quotecurrency"> <br><br>
+                Candle Interval:<br>
+                <input type="text" name="candleinterval" value="5m"> <br><br>
 
-    <button name="forward_simulation" type="submit">Start Simulation!</button>
-    <button name="forward_live" type="submit">Start Live Trading!</button>
-        </form>
+        </div>
+        <div class="simulation-settings-right">
+           <h3>Simulation Settings</h3>
+                Slow Moving Average:<br>
+                <input type="text" name="sma" value="700"> <br><br>
+                Fast Moving Average:<br>
+                <input type="text" name="fma" value="100"> <br><br>
+                Simulation Balance:<br>
+                <input type="text" name="balance" value="10"> <br><br>
+
+        </div>
+
+        <div class="clear"></div>
+            <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+     <div class="trading-buttons">
+    <button name="forward_simulation" type="submit" value="simulation-button">Start Simulation!</button>
+    <button name="forward_live" type="submit" value = "live-button">Start Live Trading!</button>
     </div>
+ </form>
+            </div>
     <br><br>
 
 </body>

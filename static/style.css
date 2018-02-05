@@ -55,3 +55,16 @@ button {
     font-family: "Lucida Console", Lucida, Monospace;
 
 }
+
+.trading-settings-left {
+float: left;
+}
+
+.simulation-settings-right {
+  float: left;
+  margin-left: 30px;
+}
+
+.trading-buttons {
+    float: left;
+}
