@@ -31,7 +31,7 @@ def strategy():
 
     if request.form['forward_simulation']:
         user_input = [user_exchange.lower(), user_basecurrency.upper(), user_quotecurrency.upper(),
-                      user_candleinterval, 1, int(user_sma), int(user_fma), int(user_balance)]
+                      user_candleinterval, True, int(user_sma), int(user_fma), int(user_balance)]
         titan_main.start_strategy(user_input)
 
     return render_template('results.html')

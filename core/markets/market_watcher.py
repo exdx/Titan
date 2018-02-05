@@ -37,7 +37,6 @@ class MarketWatcher:
         self.__thread.start()
         pub.subscribe(self.tick, "tick" + interval)
 
-
     def __run(self):
         """Start listener queue waiting for ticks"""
         self.__running = True
