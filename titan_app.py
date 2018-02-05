@@ -7,7 +7,6 @@ import logging
 app = Flask(__name__)
 titan_main.start_database()
 
-app.config['SECRET_KEY'] = '100'
 app.debug = True
 toolbar = DebugToolbarExtension(app)
 
