@@ -7,7 +7,6 @@ import logging
 app = Flask(__name__)
 titan_main.start_database()
 
-app.config['SECRET_KEY'] = '100'
 app.debug = True
 toolbar = DebugToolbarExtension(app)
 
@@ -29,12 +28,14 @@ def strategy():
     user_fma = request.form['fma']
     user_balance = request.form['balance']
 
-    if request.form['forward_simulation']:
+    if 'forward_simulation' in request.form:
         user_input = [user_exchange.lower(), user_basecurrency.upper(), user_quotecurrency.upper(),
                       user_candleinterval, True, int(user_sma), int(user_fma), int(user_balance)]
         titan_main.start_strategy(user_input)
+        return render_template('results.html')
 
-    return render_template('results.html')
+    elif 'forward_live' in request.form:
+        return render_template('results_live.html')
 
 
 @app.route("/contact")
