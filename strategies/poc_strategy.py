@@ -1,9 +1,8 @@
 from strategies.base_strategy import BaseStrategy
-from strategies.base_strategy import StrategySimulator
 from signal_generators import sma_crossover_signal
 
 
-class PocStrategy(StrategySimulator):
+class PocStrategy(BaseStrategy):
     """A strategy using the SMA crossover signal generator as a buy signal
     This strategy will trigger the SMA crossover signal on every candle and check for buy conditions
     If the condition returns true, the strategy will open a long position it does not have up to (position_limit) opened
@@ -23,4 +22,4 @@ class PocStrategy(StrategySimulator):
         if self.get_open_position_count() >= self.position_limit:
             pass
         elif buy_condition:
-            self.long()
+            self.long(self.order_quantity, self.fixed_stoploss_percent, self.trailing_stoploss_percent, self.profit_target_percent)

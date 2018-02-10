@@ -21,7 +21,7 @@ class MarketWatcher:
      Strategies that subscribe to the ticker will be given the new candles"""
     def __init__(self, exchange, base_currency, quote_currency, interval):
         exchange = getattr(ccxt, exchange)
-        ticker.start_ticker(interval)
+        ticker.subscribe(self.tick, interval)
         self.analysis_pair = '{}/{}'.format(base_currency, quote_currency)
         self.exchange = exchange()
         self.interval = interval
@@ -35,7 +35,6 @@ class MarketWatcher:
         self.latest_candle = None
         self.PairID = ohlcv_functions.write_trade_pairs_to_db(self.exchange.id, self.base_currency, self.quote_currency, self.interval)
         self.__thread.start()
-        pub.subscribe(self.tick, "tick" + interval)
 
     def __run(self):
         """Start listener queue waiting for ticks"""

@@ -11,6 +11,10 @@ logger = logging.getLogger(__name__)
 tickers = {}
 
 
+def subscribe(tick_callable, interval):
+    start_ticker(interval)
+    pub.subscribe(tick_callable, "tick" + interval)
+
 def start_ticker(interval):
     """Start a ticker/timer that notifies market watchers when to pull a new candle"""
     if interval not in tickers:

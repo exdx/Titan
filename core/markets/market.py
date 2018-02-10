@@ -31,7 +31,7 @@ class Market:
         self.ohlcv_id = defaultdict(int)
         self.indicators = defaultdict(list)
         self.candles = defaultdict(list)
-        self.latest_candle = defaultdict(list)
+        self.latest_candle = defaultdict(list)  # allows for order simulations based on historical ohlcv data
         markets.append(self)
 
     def update(self, interval, candle):
