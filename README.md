@@ -52,6 +52,5 @@ At first it's recommended to trade only simulation currency and familiarize your
 A [detailed wiki](https://github.com/Denton24646/Titan/wiki) explains the core components underlying Titan. 
 
 ### Live Trading
-![Alt Text](https://i.imgur.com/h3HPxX2.gif)
 
 *You better know what you're getting yourself into!*
