@@ -25,20 +25,25 @@ Sounds cool as heck, think about it. "Yeah made 5 BTC using that Titan trading s
 
 ## Getting Started
 ![Alt Text](https://media.giphy.com/media/v5Ewl8EnO4KFW/giphy.gif)
+
 *Is this your face right now? Don't worry!*
 
 First thing is make sure you have a recent version of Python on your computer, as well as Git (I recommend GitHub Desktop if you're a new user). You can download Python from the website [here](https://www.python.org/downloads/) and go for the 3.6+ version for your OS. From there, make a new virtual environment as follows:
+
     python -m venv /path/to/new/virtual/titanenv
     $ source titanenv/bin/activate (Mac) or C:\> titanenv\Scripts\activate.bat (Windows)
 
 Once you're squared away with a squeaky clean new virtual environment you should proceed to install all the dependencies required for the program to run. You should have <titanenv> on the side of your console window now. 
+    
     mkdir Titan
     cd Titan
     git clone https://github.com/Denton24646/Titan.git
     python pip install -r requirements.txt 
   
 Now you're all set to go - what to do next? Well, Titan is currently a Flask application that runs in your web browser. So the UI that you will interact with will be inside your Chrome or Firefox browser running on your local machine. Make sure you're in the main Titan directory and run the following:
+
     python titan_app.py
+    
 You should get an indication that the app is running on port 5555 on your local machine. If you see that message, open up your browser and navigate to http://127.0.0.1:5555 to start using the app!
 
 ## Using Titan
