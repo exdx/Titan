@@ -143,7 +143,9 @@ class BaseStrategy:
                 try:
                     job()
                 except Exception as e:
+                    print(e)
                     logger.error(job.__name__ + " threw error:\n" + str(e))
+
 
     def print_message(self, msg):
         print(str("Strategy " + str(self.strategy_id) + ": " + msg))
