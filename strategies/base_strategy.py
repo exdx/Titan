@@ -108,7 +108,7 @@ class BaseStrategy:
         return count
 
     def __update_positions(self):
-        """Loop through all strategies"""
+        """Loop through all positions opened by the strategy"""
         for p in self.positions:
             if p.is_open:
                 p.update()
@@ -134,7 +134,7 @@ class BaseStrategy:
                                                           profit_target_percent))
 
     def __run(self):
-        """Start listener queue waiting for ticks"""
+        """Start the strategy thread waiting for commands"""
         self.print_message("Starting strategy " + str(self.strategy_id))
         self.running = True
         while self.running:
@@ -148,6 +148,7 @@ class BaseStrategy:
 
 
     def print_message(self, msg):
+        """Add to a queue of messages that can be consumed by the UI"""
         print(str("Strategy " + str(self.strategy_id) + ": " + msg))
         logger.info(msg)
         self.ui_messages.put(msg)

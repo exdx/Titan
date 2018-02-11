@@ -89,7 +89,6 @@ class MarketWatcher:
         """Initiate a pull of the latest candle, making sure not to pull a duplicate candle"""
         logger.info("Getting latest candle for " + self.exchange.id + " " + self.analysis_pair + " " + interval)
         print("Getting latest candle")
-        latest_data = None
         try:
             latest_data = self.exchange.fetch_ohlcv(self.analysis_pair, interval)[-1]
             while latest_data == self.latest_candle:
@@ -102,6 +101,7 @@ class MarketWatcher:
             print(e)
             logger.info("Timeout pulling latest candle, trying again")
             self.__pull_latest_candle(interval)
+            return
         self.latest_candle = latest_data
         pub.sendMessage(self.topic, candle=self.latest_candle)
         print("Sent message to " + self.topic)
