@@ -31,7 +31,8 @@ Sounds cool as heck, think about it. "Yeah made 5 BTC using that Titan trading s
 First thing is make sure you have a recent version of Python on your computer, as well as Git (I recommend GitHub Desktop if you're a new user). You can download Python from the website [here](https://www.python.org/downloads/) and go for the 3.6+ version for your OS. From there, make a new virtual environment as follows:
 
     python -m venv /path/to/new/virtual/titanenv
-    $ source titanenv/bin/activate (Mac) or C:\> titanenv\Scripts\activate.bat (Windows)
+    (Mac) $ source titanenv/bin/activate 
+    (Windows) C:\> titanenv\Scripts\activate.bat 
 
 Once you're squared away with a squeaky clean new virtual environment you should proceed to install all the dependencies required for the program to run. You should have <titanenv> on the side of your console window now. 
     
@@ -52,3 +53,5 @@ A [detailed wiki](https://github.com/Denton24646/Titan/wiki) explains the core c
 
 ### Live Trading
 ![Alt Text](https://i.imgur.com/63TSgzk.gif)
+
+*You better know what you're getting yourself into!*
