@@ -34,7 +34,7 @@ First thing is make sure you have a recent version of Python on your computer, a
     (Mac) $ source titanenv/bin/activate 
     (Windows) C:\> titanenv\Scripts\activate.bat 
 
-Once you're squared away with a squeaky clean new virtual environment you should proceed to install all the dependencies required for the program to run. You should have <titanenv> on the side of your console window now. 
+Once you're squared away with a squeaky clean new virtual environment you should proceed to install all the dependencies required for the program to run. You should have (titanenv) on the side of your console window now. 
     
     mkdir Titan
     cd Titan
