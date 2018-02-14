@@ -1,4 +1,3 @@
-import core.database
 from ta import simple_moving_average
 from ta import volume_change_monitor
 from signal_generators.base_signal_generator import BaseSignalGenerator

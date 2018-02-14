@@ -3,5 +3,8 @@ class BaseIndicator:
     def __init__(self, market, interval, periods):
         self.market = market
         self.interval = interval
-        self.market.apply_indicator(self)
         self.periods = periods
+        self.market.apply_indicator(self)
+
+    def next_calculation(self, candle):
+        pass
