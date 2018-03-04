@@ -47,6 +47,13 @@ Now you're all set to go - what to do next? Well, Titan is currently a Flask app
     
 You should get an indication that the app is running on port 5555 on your local machine. If you see that message, open up your browser and navigate to http://127.0.0.1:5555 to start using the app!
 
+## Getting Started With Docker
+
+    ./build.sh
+    ./run.sh
+
+This should start up the app the same as above, only in a container.
+
 ## Using Titan
 At first it's recommended to trade only simulation currency and familiarize yourself with the behavior of the program. 
 A [detailed wiki](https://github.com/Denton24646/Titan/wiki) explains the core components underlying Titan. 
