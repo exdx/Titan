@@ -26,6 +26,7 @@ RUN apk --no-cache add --virtual .build-deps \
     libpng-dev \
     make \
     py3-cairo-dev \
+    py-numpy-dev \
     python3-dev
 
 RUN ln -s /usr/include/locale.h /usr/include/xlocale.h
