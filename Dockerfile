@@ -49,7 +49,7 @@ USER titan
 WORKDIR /titan
 RUN mkdir src
 WORKDIR /titan/src
-RUN git clone https://github.com/Denton24646/Titan.git
+RUN git clone https://github.com/JustinHop/Titan.git
 WORKDIR /titan/src/Titan
 RUN source /titan/bin/activate && pip install -r requirements.txt
 
