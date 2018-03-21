@@ -30,8 +30,15 @@ def strategy():
     user_balance = request.form['balance']
 
     if 'forward_simulation' in request.form:
-        user_input = [user_exchange.lower(), user_basecurrency.upper(), user_quotecurrency.upper(),
-                      user_candleinterval, True, int(user_sma), int(user_fma), int(user_balance)]
+        user_input = [
+            user_exchange.lower(),
+            user_basecurrency.upper(),
+            user_quotecurrency.upper(),
+            user_candleinterval,
+            True,
+            int(user_sma),
+            int(user_fma),
+            int(user_balance)]
         titan_main.start_strategy(user_input)
         return render_template('results.html')
 
@@ -55,4 +62,4 @@ def githubpage():
 
 
 if __name__ == "__main__":
-    app.run(port=5555)
+    app.run(host="0.0.0.0", port=5555)

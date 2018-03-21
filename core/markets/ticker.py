@@ -15,10 +15,13 @@ def subscribe(tick_callable, interval):
     start_ticker(interval)
     pub.subscribe(tick_callable, "tick" + interval)
 
+
 def start_ticker(interval):
     """Start a ticker/timer that notifies market watchers when to pull a new candle"""
     if interval not in tickers:
-        tickers[interval] = Thread(target=__start_ticker, args=(interval,)).start()
+        tickers[interval] = Thread(
+            target=__start_ticker, args=(
+                interval,)).start()
 
 
 def __start_ticker(interval):
@@ -31,7 +34,7 @@ def __start_ticker(interval):
         print(interval + " tick")
         pub.sendMessage("tick" + interval)
         live_tick_count += 1
-        time.sleep(__convert_interval_to_int(interval))  # wait 5 minutes
+        time.sleep(__convert_interval_to_int(interval))
 
 
 def __convert_interval_to_int(interval):

@@ -7,9 +7,16 @@ import logging
 logger = logging.getLogger(__name__)
 
 db_name = 'core.db'
-db_fullpath = os.path.join(os.path.dirname(os.path.realpath(__file__)), db_name)
+db_fullpath = os.path.join(
+    os.path.dirname(
+        os.path.realpath(__file__)),
+    db_name)
 lock = Lock()
-engine = create_engine('sqlite:///{}'.format(db_fullpath), connect_args={'check_same_thread': False}, echo=False)
+engine = create_engine(
+    'sqlite:///{}'.format(db_fullpath),
+    connect_args={
+        'check_same_thread': False},
+    echo=False)
 metadata = MetaData()
 
 
@@ -48,12 +55,13 @@ TradingOrders = Table('TradingOrders', metadata,
                       Column('Simulated', String)
                       )
 
+
 def drop_tables():
     print('Dropping tables...')
     metadata.drop_all(engine)
 
 
-def create_tables():#
+def create_tables():
     metadata.create_all(engine)
 
 
