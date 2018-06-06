@@ -1,4 +1,13 @@
+
 # Titan
+
+## STATUS UPDATE
+Development of the Titan Project by its founders is being put on hold because Denton has started a role at a company providing a trading platform solution similar to Titan ([Omega One](https://omega.one/)). Therefore due to legal reasons its probably not advisable to continue... 
+
+*HOWEVER*
+
+There is plenty of interest in this project and I encourage anyone interested in crypto trading to take a look at the codebase and see what our implementation was. For someone new to Python and TA this would be an interesting project to take a look at. The codebase is not so big and complex that it can't be tackled by a determined beginner. If someone wanted to fork the project and advance its development and then take ownership that would be OK as long as the license is respected and the code is made available to the public. 
+
 
 ![Alt Text](https://i.imgur.com/uebAKT4.png)
 
