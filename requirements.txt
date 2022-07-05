@@ -31,7 +31,7 @@ nbformat==4.4.0
 numpy==1.14.0
 pandas==0.22.0
 plotly==2.2.3
-pycares==2.3.0
+pycares==4.2.0
 pyparsing==2.2.0
 pypubsub==4.0.0
 python-dateutil==2.6.1
